@@ -118,15 +118,29 @@
                     <tr>
                         <td>
                             <b>X-Axis:</b>
-                            <select class="form-control" ng-model="x_axis" ng-change="updatePlots()"
+                            <select class="form-control" ng-model="axes.x" ng-change="updatePlots()"
                                     ng-options="x_opt.value for x_opt in common_data | orderBy:'value' track by x_opt.key">
                                 <option value="" selected disabled>Select one</option>
                             </select>
                         </td>
                         <td>
                             <b>Y-Axis</b>
-                            <select class="form-control" ng-model="y_axis" ng-change="updatePlots()"
+                            <select class="form-control" ng-model="axes.y" ng-change="updatePlots()"
                                     ng-options="y_opt.value for y_opt in common_data | orderBy:'value' track by y_opt.key">
+                                <option value="" selected disabled>Select one</option>
+                            </select>
+                        </td>
+                        <td>
+                            <b>Top-Axis:</b>
+                            <select class="form-control" ng-model="axes.top" ng-change="updatePlots()"
+                                    ng-options="top_opt.value for top_opt in common_data | orderBy:'value' track by top_opt.key">
+                                <option value="" selected disabled>Select one</option>
+                            </select>
+                        </td>
+                        <td>
+                            <b>Right-Axis:</b>
+                            <select class="form-control" ng-model="axes.right" ng-change="updatePlots()"
+                                    ng-options="right_opt.value for right_opt in common_data | orderBy:'value' track by right_opt.key">
                                 <option value="" selected disabled>Select one</option>
                             </select>
                         </td>

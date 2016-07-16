@@ -25,8 +25,11 @@ module.controller("tableCtrl", function($scope, $http){
     $scope.py_datasets = py_datasets;
     $scope.datasets_keys = [];
     $scope.datasets_values = [];
-    $scope.x_axis = {key: 'current_time', value: readableNames['current_time']};
-    $scope.y_axis = {key: 'test_accuracy', value: readableNames['test_accuracy']};
+    $scope.axes = {x: {key: 'current_time', value: readableNames['current_time']},
+                   y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                   top: {key: '', value: ''},
+                   right: {key: '', value: ''}};
+
     $scope._first_plot = true;
     $scope.common_data = '';
 
@@ -37,8 +40,10 @@ module.controller("tableCtrl", function($scope, $http){
         var format_name = name.split('/')[1];
         $scope.datasets_values.push({id: "dataset-"+new_num,
                                      dataset: name,
-                                     x_value: $scope.x_axis.key,
-                                     y_value: $scope.y_axis.key,
+                                     x_value: $scope.axes.x.key,
+                                     y_value: $scope.axes.y.key,
+                                     top_value: $scope.axes.top.key,
+                                     right_value: $scope.axes.right.key,
                                      color: "#2929d6",
                                      experiment: {results: [{}]}});
         $scope.datasets_keys.push(new_num);
@@ -53,7 +58,7 @@ module.controller("tableCtrl", function($scope, $http){
 
             set_scales($scope.datasets_values);
             if ($scope._first_plot) {
-                add_axes($scope.x_axis.value, $scope.y_axis.value);
+                add_axes($scope.axes);
                 add_points(this_ds);
                 $scope._first_plot = false;
             }
@@ -87,11 +92,13 @@ module.controller("tableCtrl", function($scope, $http){
 
     $scope.updatePlots = function() {
         $scope.datasets_values.forEach(function (dataset) {
-            dataset.x_value = $scope.x_axis.key;
-            dataset.y_value = $scope.y_axis.key;
+            dataset.x_value = $scope.axes.x.key;
+            dataset.y_value = $scope.axes.y.key;
+            dataset.top_value = $scope.axes.top.key;
+            dataset.right_value = $scope.axes.right.key;
         });
         set_scales($scope.datasets_values);
-        update_axes($scope.x_axis.value, $scope.y_axis.value);
+        update_axes($scope.axes);
         $scope.datasets_values.forEach(function (dataset) {
             $scope.updatePlot(dataset);
         });
