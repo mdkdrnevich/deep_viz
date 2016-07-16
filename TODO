@@ -1,4 +1,6 @@
 Fix utils.py to do error catching if certain fields are not applicable
 Make a button for dynamically adding plots
-Make axes and figures globally acccessible and alterable
-Allow overlaying plots by choosing one x and y axis based on all of the datasets that are added
+Add top axis option
+Make dropdown list drop up when it's too low
+Have a checkbox for each dataset and then a compare dropdown button (can only select two ds to compare)
+Transition axes labels

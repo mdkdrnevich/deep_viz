@@ -2,22 +2,6 @@
  * Created by Matt on 7/3/2016.
  */
 
-/*var div = $("div");
-var plot = div.data("plot");
-
-d3.selectAll(".update").on("click", function() {
-    var inputs = $("p :text").toArray();
-    inputs.forEach(function(x,ix,a) {a[ix] = x.value});
-    var datafile, dataset, format;
-    [plot, datafile] = inputs;
-    [datadir, format] = datafile.split("/");
-    $.getJSON("http://127.0.0.1:8080", {dataset: datadir, format: format}, function(dataset) {
-        var scales = get_scales(dataset, plot);
-        add_axes(scales, plot, true);
-        add_points(dataset, scales, plot, true);
-    });
-});*/
-
 var settings = {
     h: 500,
     w: 800,
@@ -25,27 +9,37 @@ var settings = {
     svg: d3.select("#graphs").append("svg").attr("width", 800).attr("height", 500)
 };
 
-function get_scales(data) {
+function set_scales(datasets) {
 
     var h = settings.h;
     var w = settings.w;
     var padding = settings.padding;
 
+    var x_extents = datasets.map( function (data) {
+        return d3.extent(data.experiment.results, function(r) {
+            return r[data.x_value];
+        });
+    });
+    var x_min = d3.min(x_extents, function(d) {return d[0]});
+    var x_max = d3.max(x_extents, function(d) {return d[1]});
+
+    var y_extents = datasets.map( function (data) {
+        return d3.extent(data.experiment.results, function(r) {
+            return r[data.y_value];
+        });
+    });
+    var y_min = d3.min(y_extents, function(d) {return d[0]});
+    var y_max = d3.max(y_extents, function(d) {return d[1]});
+
     var xScale = d3.scale.linear()
-        .domain([0, data.experiment.total_time])
+        .domain([x_min, x_max])
         .range([padding, w - padding]);
     var yScale = d3.scale.linear()
-        .domain([d3.min(data.experiment.results, function (r) {
-                    return r[data.y_value];
-                }),
-                d3.max(data.experiment.results, function (r) {
-                    return r[data.y_value];
-                })
-        ])
+        .domain([y_min, y_max])
         .range([h - padding, padding]);
 
-    data.scales = [xScale, yScale];
-    return data;
+    settings.scales = [xScale, yScale];
+    return datasets;
 }
 
 function add_axes(data, transition) {
@@ -54,9 +48,8 @@ function add_axes(data, transition) {
     var w = settings.w;
     var padding = settings.padding;
     var svg = settings.svg;
-
-    var xScale = data.scales[0];
-    var yScale = data.scales[1];
+    var xScale = settings.scales[0];
+    var yScale = settings.scales[1];
 
     // Generate Axes
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
@@ -85,72 +78,86 @@ function add_axes(data, transition) {
     return data;
 }
 
-function set_axes(datas) {
+function update_axes(datas) {
     // Iterate over all of the datas and set the axes accordingly
 }
 
-function add_points(data, transition) {
+function add_points(data) {
 
-    var w = settings.w;
-    var h = settings.h;
+    var h = settings.h
     var padding = settings.padding;
     var svg = settings.svg;
-
-    var xScale = data.scales[0];
-    var yScale = data.scales[1];
+    var xScale = settings.scales[0];
+    var yScale = settings.scales[1];
 
     // Generate points on scatterplot
-    if (transition) {
-        var circles = d3.select("#points-"+data.id).selectAll("circle").data(data.experiment.results);
-        circles.exit()
-            .transition()
-            .duration(1500)
-            .style("opacity", 0)
-            .remove();
-        circles.transition()
-            .duration(3000)
-            .attr("cx", function (d) {
-                return xScale(d.current_time)
-            })
-            .attr("cy", function (d) {
-                return yScale(d[data.y_value])
-            })
-            .attr("r", 3)
-            .attr("fill", "blue");
-        circles.enter()
-            .append("circle")
-            .attr("cx", padding)
-            .attr("cy", h - padding)
-            .attr("r", 0)
-            .transition()
-            .delay(function(d, i){
-                return i*800/data.experiment.results.length
-            })
-            .duration(3000)
-            .attr("cx", function (d) {
-                return xScale(d.current_time)
-            })
-            .attr("cy", function (d) {
-                return yScale(d[data.y_value])
-            })
-            .attr("r", 3)
-            .attr("fill", "blue");
-    } else {
+    svg.append("g")
+        .attr("id", "points-"+data.id)
+        .selectAll("circle")
+        .data(data.experiment.results)
+        .enter()
+        .append("circle")
+        .attr("cx", padding)
+        .attr("cy", h - padding)
+        .attr("r", 0)
+        .transition()
+        .delay(function(d, i){
+            return i*800/data.experiment.results.length
+        })
+        .duration(3000)
+        .attr("cx", function (d) {
+            return xScale(d[data.x_value])
+        })
+        .attr("cy", function (d) {
+            return yScale(d[data.y_value])
+        })
+        .attr("r", 3)
+        .attr("fill", data.color);
+    return data;
+}
 
-        svg.append("g")
-            .attr("id", "points-"+data.id)
-            .selectAll("circle")
-            .data(data.experiment.results)
-            .enter()
-            .append("circle")
-            .attr("cx", function (d) {
-                return xScale(d.current_time)
-            })
-            .attr("cy", function (d) {
-                return yScale(d[data.y_value])
-            })
-            .attr("r", 2);
-    }
+function update_points(data) {
+
+    var h = settings.h;
+    var padding = settings.padding;
+    var xScale = settings.scales[0];
+    var yScale = settings.scales[1];
+
+    var circles = d3.select("#points-"+data.id).selectAll("circle").data(data.experiment.results);
+    circles.exit()
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .remove();
+    circles.transition()
+        .duration(3000)
+        .attr("cx", function (d) {
+            return xScale(d[data.x_value])
+        })
+        .attr("cy", function (d) {
+            return yScale(d[data.y_value])
+        })
+        .attr("r", 3)
+        .attr("fill", data.color);
+    circles.enter()
+        .append("circle")
+        .attr("cx", padding)
+        .attr("cy", h - padding)
+        .attr("r", 0)
+        .transition()
+        .delay(function(d, i){
+            return i*800/data.experiment.results.length
+        })
+        .duration(3000)
+        .attr("cx", function (d) {
+            return xScale(d[data.x_value])
+        })
+        .attr("cy", function (d) {
+            return yScale(d[data.y_value])
+        })
+        .attr("r", 3)
+        .attr("fill", data.color);
+
     return data;
 }
 
