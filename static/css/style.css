@@ -1,55 +1,35 @@
-.login-page {
-    overflow: hidden;
-    position: absolute;
-    width: 460px;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translateX(-50%) translateY(-50%);
-    -ms-transform: translateX(-50%) translateY(-50%);
-    transform: translateX(-50%) translateY(-50%);
-}
-
-.login-page .header {
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.login-page .header h1 {
-    color: #4287ee;
-    font-size: 42px;
-    line-height: 63px;
-    font-weight: 300;
-    margin-top: 0;
-}
-
-.form-box label {
-    font-size: 16px;
-    line-height: 24px;
-    color: #252525;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.form-box .form-control {
+/*
+.form-control {
     color: #4287ee;
     height: 45px;
     border: 1px solid #787c83;
     font-size: 16px;
     line-height: 24px;
-}
+}*/
 
 .btn-blue {
     background: #4287ee;
     color: #fff;
 }
 
-.login-page .btn-blue {
-    font-size: 16px;
-    line-height: 24px;
-    padding: 8px 26px;
-    text-transform: uppercase;
+.navbar .navbar-brand {
+    color: #4287ee;
+    /* background: #787c83; */
+    font-size: 38px;
 }
 
-.input-group-addon #lock {
-    font-size: 20px;
+.dropdown-menu.open {
+    padding-top: 20px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
 }

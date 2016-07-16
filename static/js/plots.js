@@ -2,14 +2,8 @@
  * Created by Matt on 7/3/2016.
  */
 
-var div = $("div");
+/*var div = $("div");
 var plot = div.data("plot");
-
-$.getJSON("http://127.0.0.1:8080", {dataset: "ttHLep", format: "U_1to1_l1_9j"}, function(dataset) {
-    var scales = get_scales(dataset, plot);
-    add_axes(scales, plot);
-    add_points(dataset, scales, plot);
-});
 
 d3.selectAll(".update").on("click", function() {
     var inputs = $("p :text").toArray();
@@ -22,45 +16,47 @@ d3.selectAll(".update").on("click", function() {
         add_axes(scales, plot, true);
         add_points(dataset, scales, plot, true);
     });
-});
+});*/
 
 var settings = {
     h: 500,
     w: 800,
     padding: 60,
-    svg: d3.select("body").append("svg").attr("width", 800).attr("height", 500)
+    svg: d3.select("#graphs").append("svg").attr("width", 800).attr("height", 500)
 };
 
-function get_scales(dataset, y_value) {
+function get_scales(data) {
 
     var h = settings.h;
     var w = settings.w;
     var padding = settings.padding;
 
     var xScale = d3.scale.linear()
-        .domain([0, dataset.total_time])
+        .domain([0, data.experiment.total_time])
         .range([padding, w - padding]);
     var yScale = d3.scale.linear()
-        .domain([d3.min(dataset.results, function (r) {
-            return r[y_value];
-        }),
-            d3.max(dataset.results, function (r) {
-                return r[y_value];
-            })])
+        .domain([d3.min(data.experiment.results, function (r) {
+                    return r[data.y_value];
+                }),
+                d3.max(data.experiment.results, function (r) {
+                    return r[data.y_value];
+                })
+        ])
         .range([h - padding, padding]);
 
-    return [xScale, yScale];
+    data.scales = [xScale, yScale];
+    return data;
 }
 
-function add_axes(scales, y_value, transition) {
+function add_axes(data, transition) {
 
     var h = settings.h;
     var w = settings.w;
     var padding = settings.padding;
     var svg = settings.svg;
 
-    var xScale = scales[0];
-    var yScale = scales[1];
+    var xScale = data.scales[0];
+    var yScale = data.scales[1];
 
     // Generate Axes
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
@@ -84,23 +80,28 @@ function add_axes(scales, y_value, transition) {
             .attr("x", -40)
             .attr("y", 10 + (h - 2 * padding) / 2)
             .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
-            .text(y_value);
+            .text(data.y_value);
     }
+    return data;
 }
 
-function add_points(dataset, scales, y_value, transition) {
+function set_axes(datas) {
+    // Iterate over all of the datas and set the axes accordingly
+}
+
+function add_points(data, transition) {
 
     var w = settings.w;
     var h = settings.h;
     var padding = settings.padding;
     var svg = settings.svg;
 
-    var xScale = scales[0];
-    var yScale = scales[1];
+    var xScale = data.scales[0];
+    var yScale = data.scales[1];
 
     // Generate points on scatterplot
     if (transition) {
-        var circles = d3.select("#points").selectAll("circle").data(dataset.results);
+        var circles = d3.select("#points-"+data.id).selectAll("circle").data(data.experiment.results);
         circles.exit()
             .transition()
             .duration(1500)
@@ -112,7 +113,7 @@ function add_points(dataset, scales, y_value, transition) {
                 return xScale(d.current_time)
             })
             .attr("cy", function (d) {
-                return yScale(d[y_value])
+                return yScale(d[data.y_value])
             })
             .attr("r", 3)
             .attr("fill", "blue");
@@ -123,31 +124,42 @@ function add_points(dataset, scales, y_value, transition) {
             .attr("r", 0)
             .transition()
             .delay(function(d, i){
-                return i*800/dataset.results.length
+                return i*800/data.experiment.results.length
             })
             .duration(3000)
             .attr("cx", function (d) {
                 return xScale(d.current_time)
             })
             .attr("cy", function (d) {
-                return yScale(d[y_value])
+                return yScale(d[data.y_value])
             })
             .attr("r", 3)
             .attr("fill", "blue");
     } else {
 
         svg.append("g")
-            .attr("id", "points")
+            .attr("id", "points-"+data.id)
             .selectAll("circle")
-            .data(dataset.results)
+            .data(data.experiment.results)
             .enter()
             .append("circle")
             .attr("cx", function (d) {
                 return xScale(d.current_time)
             })
             .attr("cy", function (d) {
-                return yScale(d[y_value])
+                return yScale(d[data.y_value])
             })
             .attr("r", 2);
     }
+    return data;
+}
+
+function remove_points(data) {
+    d3.select("#points-"+data.id)
+        .selectAll("circle")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .remove();
+    return data;
 }

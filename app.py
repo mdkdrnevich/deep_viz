@@ -1,13 +1,13 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, jsonify
+import deep_learning.utils.dataset as ds
 
 app = Flask(__name__)
 
-@app.route('/')
-@app.route('/<plot>')
-def index(plot=None):
-    return render_template("index.html",
-                           plot=plot,
-                           script=url_for('static', filename="js/script.js"))
+@app.route('/dashboard')
+def dashboard():
+    datasets = ds.get_available_datasets()
+    params = dict(map( lambda dset: (dset, ds.get_experiments_from_dataset(dset)), datasets))
+    return render_template("dashboard.html", py_datasets=params)
 
 if __name__ == "__main__":
     app.run(debug=True)
