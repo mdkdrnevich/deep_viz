@@ -36,7 +36,8 @@ def experiment_to_dict(experiment):
     # Convert results
     d["results"] = [dict([[f[0].name, f[1]] for f in r.ListFields()]) for r in e.results._values]
 
-    for epoch in d["results"]:
+    for ix, epoch in enumerate(d["results"]):
+        epoch["num"] = ix + 1
         epoch["curve"] = [dict([[f[0].name, f[1]] for f in r.ListFields()]) for r in epoch["curve"]._values]
         epoch["matrix"] = [r.columns._values for r in epoch["matrix"]]
 

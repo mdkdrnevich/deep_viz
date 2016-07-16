@@ -1,12 +1,3 @@
-/*
-.form-control {
-    color: #4287ee;
-    height: 45px;
-    border: 1px solid #787c83;
-    font-size: 16px;
-    line-height: 24px;
-}*/
-
 .btn-blue {
     background: #4287ee;
     color: #fff;
@@ -21,6 +12,8 @@
 .dropdown-menu.open {
     padding-top: 20px;
 }
+
+/* Graph styling */
 
 .axis path,
 .axis line {

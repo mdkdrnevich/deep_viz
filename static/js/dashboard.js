@@ -17,7 +17,8 @@ var readableNames = {
     test_accuracy: "Test Accuracy",
     test_loss: "Test Loss",
     train_accuracy: "Train Accuracy",
-    train_loss: "Train Loss"
+    train_loss: "Train Loss",
+    num: "Number of Epochs"
 };
 
 module.controller("tableCtrl", function($scope, $http){
@@ -52,7 +53,7 @@ module.controller("tableCtrl", function($scope, $http){
 
             set_scales($scope.datasets_values);
             if ($scope._first_plot) {
-                add_axes(this_ds);
+                add_axes($scope.x_axis.value, $scope.y_axis.value);
                 add_points(this_ds);
                 $scope._first_plot = false;
             }
@@ -68,13 +69,19 @@ module.controller("tableCtrl", function($scope, $http){
         // Remove a dataset from the DOM
         var loc = $scope.datasets_keys.indexOf(+$event.target.id.split('-')[1]);
         remove_points($scope.datasets_values[loc]);
+
         $scope.datasets_values.splice(loc, 1);
         $scope.datasets_keys.splice(loc, 1);
-        $scope.updatePlots();
+
+        if ($scope.datasets_keys.length == 0) {
+            remove_axes();
+            $scope._first_plot = true;
+        } else {
+            $scope.updatePlots();
+        }
     };
 
     $scope.updatePlot = function(dataset) {
-        add_axes(dataset, true);
         update_points(dataset);
     };
 
@@ -84,6 +91,7 @@ module.controller("tableCtrl", function($scope, $http){
             dataset.y_value = $scope.y_axis.key;
         });
         set_scales($scope.datasets_values);
+        update_axes($scope.x_axis.value, $scope.y_axis.value);
         $scope.datasets_values.forEach(function (dataset) {
             $scope.updatePlot(dataset);
         });

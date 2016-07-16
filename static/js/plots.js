@@ -6,7 +6,9 @@ var settings = {
     h: 500,
     w: 800,
     padding: 60,
-    svg: d3.select("#graphs").append("svg").attr("width", 800).attr("height", 500)
+    svg: d3.select("#graphs").append("svg").attr("width", 800).attr("height", 500),
+    scales: '',
+    current_labels: {}
 };
 
 function set_scales(datasets) {
@@ -42,7 +44,7 @@ function set_scales(datasets) {
     return datasets;
 }
 
-function add_axes(data, transition) {
+function add_axes(x_label, y_label) {
 
     var h = settings.h;
     var w = settings.w;
@@ -55,36 +57,87 @@ function add_axes(data, transition) {
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
 
-    if (transition) {
-        d3.select(".x.axis").transition().duration(3000).call(xAxis);
-        d3.select(".y.axis").transition().duration(3000).call(yAxis);
-    } else {
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (h - padding + 5) + ")")
-            .call(xAxis);
-        svg.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(" + (padding - 5) + ",0)")
-            .call(yAxis);
-        // Label the axes
-        d3.select(".x.axis").append("text").attr("x", (w - 2 * padding) / 2).attr("y", 30).text("Seconds");
-        d3.select(".y.axis").append("text")
-            .attr("x", -40)
-            .attr("y", 10 + (h - 2 * padding) / 2)
-            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
-            .text(data.y_value);
-    }
-    return data;
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .call(xAxis);
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .call(yAxis);
+
+    // Label the axes
+    d3.select(".x.axis").append("text")
+        .style("opacity", 0)
+        .transition()
+        .duration(3000)
+        .attr("id", "x-label")
+        .attr("x", (w - 2 * padding) / 2)
+        .attr("y", 30)
+        .style("opacity", 1)
+        .text(x_label);
+    d3.select(".y.axis").append("text")
+        .style("opacity", 0)
+        .transition()
+        .duration(3000)
+        .attr("id", "y-label")
+        .attr("x", -40)
+        .attr("y", 10 + (h - 2 * padding) / 2)
+        .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
+        .style("opacity", 1)
+        .text(y_label);
+
+    settings.current_labels = {x: x_label, y: y_label};
+    return null;
 }
 
-function update_axes(datas) {
-    // Iterate over all of the datas and set the axes accordingly
+function update_axes(x_label, y_label) {
+
+    var xScale = settings.scales[0];
+    var yScale = settings.scales[1];
+
+    var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
+    var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
+    d3.select(".x.axis").transition().duration(3000).call(xAxis);
+    d3.select(".y.axis").transition().duration(3000).call(yAxis);
+
+    console.log(x_label, y_label);
+    if (settings.current_labels.x != x_label) {
+        d3.select("#x-label")
+            .transition()
+            .duration(1500)
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .text(x_label)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .style("opacity", 1);
+    }
+    if (settings.current_labels.y != y_label) {
+        d3.select("#y-label")
+            .transition()
+            .duration(1500)
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .text(y_label)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .style("opacity", 1);
+    }
+    settings.current_labels.x = x_label;
+    settings.current_labels.y = y_label;
+    return null;
 }
 
 function add_points(data) {
 
-    var h = settings.h
+    var h = settings.h;
     var padding = settings.padding;
     var svg = settings.svg;
     var xScale = settings.scales[0];
@@ -159,6 +212,17 @@ function update_points(data) {
         .attr("fill", data.color);
 
     return data;
+}
+
+function remove_axes() {
+    d3.selectAll(".axis")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .transition()
+        .delay(1501)
+        .remove();
+    return null;
 }
 
 function remove_points(data) {
