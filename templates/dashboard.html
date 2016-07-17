@@ -96,7 +96,7 @@
                         <a tabindex="-1">{a key a}</a>
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Experiments</li>
-                            <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(key+'/'+exp)">{a exp a}</a></li>
+                            <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(0, key+'/'+exp)">{a exp a}</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -118,30 +118,30 @@
                     <tr>
                         <td>
                             <b>X-Axis:</b>
-                            <select class="form-control" ng-model="axes.x" ng-change="updatePlots()"
-                                    ng-options="x_opt.value for x_opt in common_data | orderBy:'value' track by x_opt.key">
+                            <select class="form-control" ng-model="plots[0].axes.x" ng-change="updatePlots(0)"
+                                    ng-options="x_opt.value for x_opt in plots[0].common_data | orderBy:'value' track by x_opt.key">
                                 <option value="" selected disabled>Select one</option>
                             </select>
                         </td>
                         <td>
                             <b>Y-Axis</b>
-                            <select class="form-control" ng-model="axes.y" ng-change="updatePlots()"
-                                    ng-options="y_opt.value for y_opt in common_data | orderBy:'value' track by y_opt.key">
+                            <select class="form-control" ng-model="plots[0].axes.y" ng-change="updatePlots(0)"
+                                    ng-options="y_opt.value for y_opt in plots[0].common_data | orderBy:'value' track by y_opt.key">
                                 <option value="" selected disabled>Select one</option>
                             </select>
                         </td>
                         <td>
                             <b>Top-Axis:</b>
-                            <select class="form-control" ng-model="axes.top" ng-change="updatePlots()"
-                                    ng-options="top_opt.value for top_opt in common_data | orderBy:'value' track by top_opt.key">
-                                <option ng-click="removeAxis('top')" value="" selected>None</option>
+                            <select class="form-control" ng-model="plots[0].axes.top" ng-change="updatePlots(0)"
+                                    ng-options="top_opt.value for top_opt in plots[0].common_data | orderBy:'value' track by top_opt.key">
+                                <option ng-click="removeAxis(0, 'top')" value="" selected>None</option>
                             </select>
                         </td>
                         <td>
                             <b>Right-Axis:</b>
-                            <select class="form-control" ng-model="axes.right" ng-change="updatePlots()"
-                                    ng-options="right_opt.value for right_opt in common_data | orderBy:'value' track by right_opt.key">
-                                <option ng-click="removeAxis('right')" value="" selected>None</option>
+                            <select class="form-control" ng-model="plots[0].axes.right" ng-change="updatePlots(0)"
+                                    ng-options="right_opt.value for right_opt in plots[0].common_data | orderBy:'value' track by right_opt.key">
+                                <option ng-click="removeAxis(0, 'right')" value="" selected>None</option>
                             </select>
                         </td>
                     </tr>
@@ -155,33 +155,33 @@
                     </tr>
                   </thead>
                   <tbody id="myTable-body">
-                    <tr ng-repeat="entry in datasets_values" class="form-group">
+                    <tr ng-repeat="entry in plots[0].datasets_values" class="form-group">
                         <td>
                             {a entry.dataset a}
                         </td>
                         <td>
-                            <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots()"
-                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in valid_x_axes | orderBy:'value'"
+                            <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots(0)"
+                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in plots[0].valid_x_axes | orderBy:'value'"
                                     ng-init="entry.axes.x.scale = 'x'">
                                 <option value="" selected disabled>Select one</option>
                             </select>
                         </td>
                         <td>
-                            <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots()"
-                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in valid_y_axes | orderBy:'value'"
+                            <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots(0)"
+                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in plots[0].valid_y_axes | orderBy:'value'"
                                     ng-init="entry.axes.y.scale = 'y'">
                                 <option value="" selected disabled>Select one</option>
                             </select>
                         </td>
                         <td>
-                            <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(entry)">
+                            <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(0, entry)">
                         </td>
                         <td>
                             Compare
                         </td>
                         <td>
                             <input type="button" class="btn btn-primary btn-blue" value="Remove"
-                                   ng-click="removeDataset($event)" id="{a entry.id a}"/>
+                                   ng-click="removeDataset(0, $event)" id="{a entry.id a}"/>
                         </td>
                     </tr>
                   </tbody>

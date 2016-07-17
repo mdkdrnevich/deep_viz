@@ -5,17 +5,18 @@
 var max_width = +$("#graphs").css("width").slice(0,-2);
 var max_height = 500;
 
-var settings = {
+var global_settings = [{
     h: max_height,
     w: max_width,
     padding: 60,
-    svg: d3.select("#graphs").append("svg").attr("width", max_width).attr("height", max_height),
+    svg_row: d3.select("#graphs").append("svg").attr("width", max_width).attr("height", max_height),
+    svg: d3.select("#graphs svg").append("g").attr("id", "plot-0"),
     scales: {},
     current_labels: {x: '', y: '', top: '', right: ''}
-};
+}];
 
-function set_scales(datasets, axes) {
-
+function set_scales(plot, datasets, axes) {
+    var settings = global_settings[plot];
     var h = settings.h;
     var w = settings.w;
     var padding = settings.padding;
@@ -74,8 +75,8 @@ function set_scales(datasets, axes) {
     return datasets;
 }
 
-function add_axes(axes) {
-
+function add_axes(plot, axes) {
+    var settings = global_settings[plot];
     var h = settings.h;
     var w = settings.w;
     var padding = settings.padding;
@@ -97,20 +98,20 @@ function add_axes(axes) {
         .call(yAxis);
 
     // Label the axes
-    d3.select(".x.axis").append("text")
+    d3.select("#plot-"+plot+" .x.axis").append("text")
         .style("opacity", 0)
         .transition()
         .duration(1500)
-        .attr("id", "x-label")
+        .attr("class", "x label")
         .attr("x", (w - 2 * padding) / 2)
         .attr("y", 30)
         .style("opacity", 1)
         .text(axes.x.value);
-    d3.select(".y.axis").append("text")
+    d3.select("#plot-"+plot+" .y.axis").append("text")
         .style("opacity", 0)
         .transition()
         .duration(1500)
-        .attr("id", "y-label")
+        .attr("class", "y label")
         .attr("x", -40)
         .attr("y", 10 + (h - 2 * padding) / 2)
         .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
@@ -120,16 +121,16 @@ function add_axes(axes) {
     settings.current_labels = {x: axes.x.value, y: axes.y.value};
 
     if (axes.top.key && axes.top.value) {
-        add_top_axis(axes.top.value);
+        add_top_axis(plot, axes.top.value);
     }
     if (axes.top.key && axes.right.value) {
-        add_right_axis(axes.right.value);
+        add_right_axis(plot, axes.right.value);
     }
     return null;
 }
 
-function add_top_axis(label) {
-
+function add_top_axis(plot, label) {
+    var settings = global_settings[plot];
     var w = settings.w;
     var padding = settings.padding;
     var svg = settings.svg;
@@ -146,11 +147,11 @@ function add_top_axis(label) {
         .call(axis);
 
     // Label the axes
-    d3.select(".top.axis").append("text")
+    d3.select("#plot-"+plot+" .top.axis").append("text")
         .style("opacity", 0)
         .transition()
         .duration(1500)
-        .attr("id", "top-label")
+        .attr("class", "top label")
         .attr("x", (w - 2 * padding) / 2)
         .attr("y", -30)
         .style("opacity", 1)
@@ -160,8 +161,8 @@ function add_top_axis(label) {
     return null;
 }
 
-function add_right_axis(label) {
-
+function add_right_axis(plot, label) {
+    var settings = global_settings[plot];
     var w = settings.w;
     var h = settings.h;
     var padding = settings.padding;
@@ -179,11 +180,11 @@ function add_right_axis(label) {
         .call(axis);
 
     // Label the axes
-    d3.select(".right.axis").append("text")
+    d3.select("#plot-"+plot+" .right.axis").append("text")
         .style("opacity", 0)
         .transition()
         .duration(1500)
-        .attr("id", "right-label")
+        .attr("class", "right label")
         .attr("x", 40)
         .attr("y", padding + 35)
         .attr("transform", "rotate(90, 40," + (padding + 35) + ")")
@@ -194,8 +195,8 @@ function add_right_axis(label) {
     return null;
 }
 
-function update_axes(axes) {
-
+function update_axes(plot, axes) {
+    var settings = global_settings[plot];
     var w = settings.w;
     var h = settings.h;
     var padding = settings.padding;
@@ -204,11 +205,11 @@ function update_axes(axes) {
 
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
-    d3.select(".x.axis").transition().duration(3000).call(xAxis);
-    d3.select(".y.axis").transition().duration(3000).call(yAxis);
+    d3.select("#plot-"+plot+" .x.axis").transition().duration(3000).call(xAxis);
+    d3.select("#plot-"+plot+" .y.axis").transition().duration(3000).call(yAxis);
 
     if (settings.current_labels.x != axes.x.value) {
-        d3.select("#x-label")
+        d3.select("#plot-"+plot+" .x.label")
             .transition()
             .duration(1000)
             .attr("x", (w - 2 * padding) / 2)
@@ -226,13 +227,13 @@ function update_axes(axes) {
             .style("opacity", 1);
         settings.current_labels.x = axes.x.value;
     } else {
-        d3.select("#x-label")
+        d3.select("#plot-"+plot+" .x.label")
             .transition()
             .duration(3000)
             .attr("x", (w - 2 * padding) / 2)
     }
     if (settings.current_labels.y != axes.y.value) {
-        d3.select("#y-label")
+        d3.select("#plot-"+plot+" .y.label")
             .transition()
             .duration(1500)
             .style("opacity", 0)
@@ -250,7 +251,7 @@ function update_axes(axes) {
             .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")");
         settings.current_labels.y = axes.y.value;
     } else {
-        d3.select("#y-label")
+        d3.select("#plot-"+plot+" .y.label")
             .transition()
             .duration(3000)
             .attr("y", 10 + (h - 2 * padding) / 2)
@@ -260,12 +261,12 @@ function update_axes(axes) {
     var topScale, topAxis, rightScale, rightAxis;
 
     if (!settings.current_labels.top && axes.top.value) {
-        add_top_axis(axes.top.value)
+        add_top_axis(plot, axes.top.value)
     } else if ((settings.current_labels.top != axes.top.value) && axes.top.value) {
         topScale = settings.scales.top;
         topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
-        d3.select(".top.axis").transition().duration(3000).call(topAxis);
-        d3.select("#top-label")
+        d3.select("#plot-"+plot+" .top.axis").transition().duration(3000).call(topAxis);
+        d3.select("#plot-"+plot+" .top.label")
             .transition()
             .duration(1000)
             .attr("x", (w - 2 * padding) / 2)
@@ -285,22 +286,22 @@ function update_axes(axes) {
     } else if ((settings.current_labels.top == axes.top.value) && axes.top.value) {
         topScale = settings.scales.top;
         topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
-        d3.select(".top.axis").transition().duration(3000).call(topAxis);
-        d3.select("#top-label")
+        d3.select("#plot-"+plot+" .top.axis").transition().duration(3000).call(topAxis);
+        d3.select("#plot-"+plot+" .top.label")
             .transition()
             .duration(3000)
             .attr("x", (w - 2 * padding) / 2)
     }
 
     if (!settings.current_labels.right && axes.right.value) {
-        add_right_axis(axes.right.value)
+        add_right_axis(plot, axes.right.value)
     } else if ((settings.current_labels.right != axes.right.value) && axes.right.value) {
         rightScale = settings.scales.right;
         rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
-        d3.select(".right.axis").transition().duration(3000)
+        d3.select("#plot-"+plot+" .right.axis").transition().duration(3000)
             .attr("transform", "translate(" + (w - padding + 5) + ",0)")
             .call(rightAxis);
-        d3.select("#right-label")
+        d3.select("#plot-"+plot+" .right.label")
             .transition()
             .duration(1500)
             .style("opacity", 0)
@@ -316,15 +317,15 @@ function update_axes(axes) {
     } else if ((settings.current_labels.right == axes.right.value) && axes.right.value) {
         rightScale = settings.scales.right;
         rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
-        d3.select(".right.axis").transition().duration(3000)
+        d3.select("#plot-"+plot+" .right.axis").transition().duration(3000)
             .attr("transform", "translate(" + (w - padding + 5) + ",0)")
             .call(rightAxis);
     }
     return null;
 }
 
-function add_points(data) {
-
+function add_points(plot, data) {
+    var settings = global_settings[plot];
     var h = settings.h;
     var padding = settings.padding;
     var svg = settings.svg;
@@ -357,8 +358,8 @@ function add_points(data) {
     return data;
 }
 
-function update_points(data) {
-
+function update_points(plot, data) {
+    var settings = global_settings[plot];
     var h = settings.h;
     var padding = settings.padding;
     var xScale = settings.scales[data.axes.x.scale];
@@ -402,8 +403,9 @@ function update_points(data) {
     return data;
 }
 
-function remove_axis(which) {
-    d3.select("."+which+".axis")
+function remove_axis(plot, which) {
+    var settings = global_settings[plot];
+    d3.select("#plot-"+plot+" ."+which+".axis")
         .transition()
         .duration(1500)
         .style("opacity", 0)
@@ -415,8 +417,8 @@ function remove_axis(which) {
     return null;
 }
 
-function remove_axes() {
-    d3.selectAll(".axis")
+function remove_axes(plot) {
+    d3.selectAll("#plot-"+plot+" .axis")
         .transition()
         .duration(1500)
         .style("opacity", 0)
@@ -426,7 +428,7 @@ function remove_axes() {
     return null;
 }
 
-function remove_points(data) {
+function remove_points(plot, data) {
     d3.select("#points-"+data.id)
         .selectAll("circle")
         .transition()
