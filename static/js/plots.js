@@ -11,7 +11,7 @@ var settings = {
     current_labels: {x: '', y: '', top: '', right: ''}
 };
 
-function set_scales(datasets) {
+function set_scales(datasets, axes) {
 
     var h = settings.h;
     var w = settings.w;
@@ -19,7 +19,7 @@ function set_scales(datasets) {
 
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            return r[data.x_value];
+            return r[axes.x.key];
         });
     });
     var x_min = d3.min(x_extents, function(d) {return d[0]});
@@ -27,7 +27,7 @@ function set_scales(datasets) {
 
     var y_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            return r[data.y_value];
+            return r[axes.y.key];
         });
     });
     var y_min = d3.min(y_extents, function(d) {return d[0]});
@@ -42,10 +42,10 @@ function set_scales(datasets) {
 
     settings.scales = {x: xScale, y: yScale};
 
-    if (datasets[0].top_value) {
+    if (axes.top.key && axes.top.value) {
         var top_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
-                return r[data.top_value];
+                return r[axes.top.key];
             });
         });
         var top_min = d3.min(top_extents, function(d) {return d[0]});
@@ -55,10 +55,10 @@ function set_scales(datasets) {
                                     .domain([top_min, top_max])
                                     .range([padding, w - padding]);
     }
-    if (datasets[0].right_value) {
+    if (axes.right.key && axes.right.value) {
         var right_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
-                return r[data.right_value];
+                return r[axes.right.key];
             });
         });
         var right_min = d3.min(right_extents, function(d) {return d[0]});
@@ -116,10 +116,10 @@ function add_axes(axes) {
 
     settings.current_labels = {x: axes.x.value, y: axes.y.value};
 
-    if (axes.top.value) {
+    if (axes.top.key && axes.top.value) {
         add_top_axis(axes.top.value);
     }
-    if (axes.right.value) {
+    if (axes.top.key && axes.right.value) {
         add_right_axis(axes.right.value);
     }
     return null;
@@ -283,8 +283,8 @@ function add_points(data) {
     var h = settings.h;
     var padding = settings.padding;
     var svg = settings.svg;
-    var xScale = settings.scales.x;
-    var yScale = settings.scales.y;
+    var xScale = settings.scales[data.axes.x.scale];
+    var yScale = settings.scales[data.axes.y.scale];
 
     // Generate points on scatterplot
     svg.append("g")
@@ -302,10 +302,10 @@ function add_points(data) {
         })
         .duration(3000)
         .attr("cx", function (d) {
-            return xScale(d[data.x_value])
+            return xScale(d[data.axes.x.key])
         })
         .attr("cy", function (d) {
-            return yScale(d[data.y_value])
+            return yScale(d[data.axes.y.key])
         })
         .attr("r", 3)
         .attr("fill", data.color);
@@ -316,8 +316,8 @@ function update_points(data) {
 
     var h = settings.h;
     var padding = settings.padding;
-    var xScale = settings.scales.x;
-    var yScale = settings.scales.y;
+    var xScale = settings.scales[data.axes.x.scale];
+    var yScale = settings.scales[data.axes.y.scale];
 
     var circles = d3.select("#points-"+data.id).selectAll("circle").data(data.experiment.results);
     circles.exit()
@@ -328,10 +328,10 @@ function update_points(data) {
     circles.transition()
         .duration(3000)
         .attr("cx", function (d) {
-            return xScale(d[data.x_value])
+            return xScale(d[data.axes.x.key])
         })
         .attr("cy", function (d) {
-            return yScale(d[data.y_value])
+            return yScale(d[data.axes.y.key])
         })
         .attr("r", 3)
         .attr("fill", data.color);
@@ -346,10 +346,10 @@ function update_points(data) {
         })
         .duration(3000)
         .attr("cx", function (d) {
-            return xScale(d[data.x_value])
+            return xScale(d[data.axes.x.key])
         })
         .attr("cy", function (d) {
-            return yScale(d[data.y_value])
+            return yScale(d[data.axes.y.key])
         })
         .attr("r", 3)
         .attr("fill", data.color);

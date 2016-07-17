@@ -147,6 +147,8 @@
                     </tr>
                     <tr>
                         <th>Dataset</th>
+                        <th>X-Scale</th>
+                        <th>Y-Scale</th>
                         <th>Color</th>
                         <th>Compare</th>
                         <th>Remove</th>
@@ -156,6 +158,20 @@
                     <tr ng-repeat="entry in datasets_values" class="form-group">
                         <td>
                             {a entry.dataset a}
+                        </td>
+                        <td>
+                            <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots()"
+                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in valid_x_axes | orderBy:'value'"
+                                    ng-init="entry.axes.x.scale = 'x'">
+                                <option value="" selected disabled>Select one</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots()"
+                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in valid_y_axes | orderBy:'value'"
+                                    ng-init="entry.axes.y.scale = 'y'">
+                                <option value="" selected disabled>Select one</option>
+                            </select>
                         </td>
                         <td>
                             <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(entry)">
