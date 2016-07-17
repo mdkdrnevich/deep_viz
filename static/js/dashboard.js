@@ -58,7 +58,7 @@ module.controller("tableCtrl", function($scope, $http){
                                      experiment: {results: [{}]}});
         $scope.datasets_keys.push(new_num);
 
-        $http({url: "http://127.0.0.1:8080",
+        $http({url: "http://127.0.0.1:5000/data",
                method: "GET",
                params: {dataset: dataset_name, format: format_name}}).then(function(response){
             var this_ds = $scope.datasets_values[$scope.datasets_values.length-1];
