@@ -2,11 +2,14 @@
  * Created by Matt on 7/3/2016.
  */
 
+var max_width = +$("#graphs").css("width").slice(0,-2);
+var max_height = 500;
+
 var settings = {
-    h: 500,
-    w: 800,
+    h: max_height,
+    w: max_width,
     padding: 60,
-    svg: d3.select("#graphs").append("svg").attr("width", 800).attr("height", 500),
+    svg: d3.select("#graphs").append("svg").attr("width", max_width).attr("height", max_height),
     scales: {},
     current_labels: {x: '', y: '', top: '', right: ''}
 };
@@ -193,6 +196,9 @@ function add_right_axis(label) {
 
 function update_axes(axes) {
 
+    var w = settings.w;
+    var h = settings.h;
+    var padding = settings.padding;
     var xScale = settings.scales.x;
     var yScale = settings.scales.y;
 
@@ -204,7 +210,11 @@ function update_axes(axes) {
     if (settings.current_labels.x != axes.x.value) {
         d3.select("#x-label")
             .transition()
-            .duration(1500)
+            .duration(1000)
+            .attr("x", (w - 2 * padding) / 2)
+            .transition()
+            .duration(500)
+            .delay(1000)
             .style("opacity", 0)
             .transition()
             .duration(1500)
@@ -215,6 +225,11 @@ function update_axes(axes) {
             .delay(1500)
             .style("opacity", 1);
         settings.current_labels.x = axes.x.value;
+    } else {
+        d3.select("#x-label")
+            .transition()
+            .duration(3000)
+            .attr("x", (w - 2 * padding) / 2)
     }
     if (settings.current_labels.y != axes.y.value) {
         d3.select("#y-label")
@@ -228,52 +243,82 @@ function update_axes(axes) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .style("opacity", 1);
+            .style("opacity", 1)
+            .transition()
+            .duration(3000)
+            .attr("y", 10 + (h - 2 * padding) / 2)
+            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")");
         settings.current_labels.y = axes.y.value;
+    } else {
+        d3.select("#y-label")
+            .transition()
+            .duration(3000)
+            .attr("y", 10 + (h - 2 * padding) / 2)
+            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
     }
-    if ((settings.current_labels.top != axes.top.value) && axes.top.value) {
-        if (!settings.current_labels.top) {
-            add_top_axis(axes.top.value)
-        } else {
-            var topScale = settings.scales.top;
-            var topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
-            d3.select(".top.axis").transition().duration(3000).call(topAxis);
-            d3.select("#top-label")
-                .transition()
-                .duration(1500)
-                .style("opacity", 0)
-                .transition()
-                .duration(1500)
-                .delay(1500)
-                .text(axes.top.value)
-                .transition()
-                .duration(1500)
-                .delay(1500)
-                .style("opacity", 1);
-        }
+
+    var topScale, topAxis, rightScale, rightAxis;
+
+    if (!settings.current_labels.top && axes.top.value) {
+        add_top_axis(axes.top.value)
+    } else if (settings.current_labels.top != axes.top.value) {
+        topScale = settings.scales.top;
+        topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
+        d3.select(".top.axis").transition().duration(3000).call(topAxis);
+        d3.select("#top-label")
+            .transition()
+            .duration(1000)
+            .attr("x", (w - 2 * padding) / 2)
+            .transition()
+            .duration(500)
+            .delay(1000)
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .text(axes.top.value)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .style("opacity", 1);
         settings.current_labels.top = axes.top.value;
+    } else if (settings.current_labels.top == axes.top.value) {
+        topScale = settings.scales.top;
+        topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
+        d3.select(".top.axis").transition().duration(3000).call(topAxis);
+        d3.select("#top-label")
+            .transition()
+            .duration(3000)
+            .attr("x", (w - 2 * padding) / 2)
     }
-    if ((settings.current_labels.right != axes.right.value) && axes.right.value) {
-        if (!settings.current_labels.right) {
-            add_right_axis(axes.right.value)
-        } else {
-            var rightScale = settings.scales.right;
-            var rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
-            d3.select(".right.axis").transition().duration(3000).call(rightAxis);
-            d3.select("#right-label")
-                .transition()
-                .duration(1500)
-                .style("opacity", 0)
-                .transition()
-                .duration(1500)
-                .delay(1500)
-                .text(axes.right.value)
-                .transition()
-                .duration(1500)
-                .delay(1500)
-                .style("opacity", 1);
-        }
+
+    if (!settings.current_labels.right && axes.right.value) {
+        add_right_axis(axes.right.value)
+    } else if (settings.current_labels.right != axes.right.value) {
+        rightScale = settings.scales.right;
+        rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
+        d3.select(".right.axis").transition().duration(3000)
+            .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+            .call(rightAxis);
+        d3.select("#right-label")
+            .transition()
+            .duration(1500)
+            .style("opacity", 0)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .text(axes.right.value)
+            .transition()
+            .duration(1500)
+            .delay(1500)
+            .style("opacity", 1);
         settings.current_labels.right = axes.right.value;
+    } else if (settings.current_labels.right == axes.right.value) {
+        rightScale = settings.scales.right;
+        rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
+        d3.select(".right.axis").transition().duration(3000)
+            .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+            .call(rightAxis);
     }
     return null;
 }
