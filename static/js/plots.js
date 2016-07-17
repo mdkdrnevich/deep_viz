@@ -261,7 +261,7 @@ function update_axes(axes) {
 
     if (!settings.current_labels.top && axes.top.value) {
         add_top_axis(axes.top.value)
-    } else if (settings.current_labels.top != axes.top.value) {
+    } else if ((settings.current_labels.top != axes.top.value) && axes.top.value) {
         topScale = settings.scales.top;
         topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
         d3.select(".top.axis").transition().duration(3000).call(topAxis);
@@ -282,7 +282,7 @@ function update_axes(axes) {
             .delay(1500)
             .style("opacity", 1);
         settings.current_labels.top = axes.top.value;
-    } else if (settings.current_labels.top == axes.top.value) {
+    } else if ((settings.current_labels.top == axes.top.value) && axes.top.value) {
         topScale = settings.scales.top;
         topAxis = d3.svg.axis().scale(topScale).orient("top").ticks(15);
         d3.select(".top.axis").transition().duration(3000).call(topAxis);
@@ -294,7 +294,7 @@ function update_axes(axes) {
 
     if (!settings.current_labels.right && axes.right.value) {
         add_right_axis(axes.right.value)
-    } else if (settings.current_labels.right != axes.right.value) {
+    } else if ((settings.current_labels.right != axes.right.value) && axes.right.value) {
         rightScale = settings.scales.right;
         rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
         d3.select(".right.axis").transition().duration(3000)
@@ -313,7 +313,7 @@ function update_axes(axes) {
             .delay(1500)
             .style("opacity", 1);
         settings.current_labels.right = axes.right.value;
-    } else if (settings.current_labels.right == axes.right.value) {
+    } else if ((settings.current_labels.right == axes.right.value) && axes.right.value) {
         rightScale = settings.scales.right;
         rightAxis = d3.svg.axis().scale(rightScale).orient("right").ticks(10);
         d3.select(".right.axis").transition().duration(3000)
@@ -400,6 +400,19 @@ function update_points(data) {
         .attr("fill", data.color);
 
     return data;
+}
+
+function remove_axis(which) {
+    d3.select("."+which+".axis")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .transition()
+        .delay(1501)
+        .remove();
+    settings.current_labels.top = '';
+    settings.scales.top = null;
+    return null;
 }
 
 function remove_axes() {

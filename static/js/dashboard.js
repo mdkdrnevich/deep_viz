@@ -25,7 +25,7 @@ var readableNames = {
     right: "Right-Axis"
 };
 
-module.controller("tableCtrl", function($scope, $http){
+module.controller("mainCtrl", function($scope, $http){
     $scope.py_datasets = py_datasets;
     $scope.datasets_keys = [];
     $scope.datasets_values = [];
@@ -39,6 +39,7 @@ module.controller("tableCtrl", function($scope, $http){
     $scope._first_plot = true;
     $scope.common_data = '';
 
+    // Adds a dataset to a plot and updates the plot
     $scope.addDataset = function(name){
         // Add a dataset to the DOM
         var new_num = $scope._first_plot ? 0 : Math.max.apply(null, $scope.datasets_keys) + 1;
@@ -80,6 +81,7 @@ module.controller("tableCtrl", function($scope, $http){
         });
     };
 
+    // Removes a dataset from the plot and updates the plot
     $scope.removeDataset = function($event) {
         // Remove a dataset from the DOM
         var loc = $scope.datasets_keys.indexOf(+$event.target.id.split('-')[1]);
@@ -96,12 +98,26 @@ module.controller("tableCtrl", function($scope, $http){
         }
     };
 
+    // Updates an individual plot
     $scope.updatePlot = function(dataset) {
         update_points(dataset);
     };
 
+    // Updates all of the plots
     $scope.updatePlots = function() {
+        var bool_top = Boolean($scope.axes.top);
+        var bool_right = Boolean($scope.axes.right);
+        if (!bool_top) {
+            $scope.axes.top = {key: '', value: ''};
+            remove_axis('top');
+        }
+        if (!bool_right) {
+            $scope.axes.right = {key: '', value: ''};
+            remove_axis('right');
+        }
         $scope.datasets_values.forEach(function (dataset) {
+            if (!bool_top) dataset.axes.x.scale = 'x';
+            if (!bool_right) dataset.axes.y.scale = 'y';
             var x_scale = dataset.axes.x.scale;
             var y_scale = dataset.axes.y.scale;
             dataset.axes.x.key = $scope.axes[x_scale].key;
@@ -114,15 +130,16 @@ module.controller("tableCtrl", function($scope, $http){
         $scope.datasets_values.forEach(function (dataset) {
             $scope.updatePlot(dataset);
         });
-        $scope.valid_x_axes = $scope.get_valid_axes('x');
-        $scope.valid_y_axes = $scope.get_valid_axes('y');
+        $scope.valid_x_axes = $scope.getValidAxes('x');
+        $scope.valid_y_axes = $scope.getValidAxes('y');
     };
 
     $scope.getKeys = function(obj) {
         return Object.keys(obj);
     };
 
-    $scope.get_valid_axes = function(which) {
+    // Returns {key: "<axis key>", value: "<axis name>"} that have been generated
+    $scope.getValidAxes = function(which) {
         var rval = [];
         Object.keys($scope.axes).forEach( function(a) {
             $scope.axes[a].key && $scope.axes[a].value ? rval.push({key: a, value: readableNames[a]}) : null;
@@ -144,6 +161,22 @@ module.controller("tableCtrl", function($scope, $http){
         return rval;
     };
 
+    // Removes an optional axis
+    $scope.removeAxis = function(which) {
+        console.log("Click");
+        switch(which) {
+            case 'top':
+                $scope.axes.top = {key: '', value: ''};
+                break;
+            case 'right':
+                $scope.axes.right = {key: '', value: ''};
+                break;
+            default:
+                break;
+        }
+    };
+
+    // Returns a list of data that is common to all of the datasets
     $scope.getCommonData = function() {
         var options = new Set();
         var rval = [];

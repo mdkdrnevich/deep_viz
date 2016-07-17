@@ -59,7 +59,7 @@
     </nav>
 
     <div class="container-fluid" ng-app="main">
-      <div class="row" ng-controller="tableCtrl">
+      <div class="row" ng-controller="mainCtrl">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <li class="active"><a>Overview <span class="sr-only">(current)</span></a></li>
@@ -134,14 +134,14 @@
                             <b>Top-Axis:</b>
                             <select class="form-control" ng-model="axes.top" ng-change="updatePlots()"
                                     ng-options="top_opt.value for top_opt in common_data | orderBy:'value' track by top_opt.key">
-                                <option value="" selected disabled>Select one</option>
+                                <option ng-click="removeAxis('top')" value="" selected>None</option>
                             </select>
                         </td>
                         <td>
                             <b>Right-Axis:</b>
                             <select class="form-control" ng-model="axes.right" ng-change="updatePlots()"
                                     ng-options="right_opt.value for right_opt in common_data | orderBy:'value' track by right_opt.key">
-                                <option value="" selected disabled>Select one</option>
+                                <option ng-click="removeAxis('right')" value="" selected>None</option>
                             </select>
                         </td>
                     </tr>
