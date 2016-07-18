@@ -65,12 +65,24 @@
             <li class="active"><a href="#" ng-click="smoothScroll($event)">Dashboard <span class="sr-only">(current)</span></a></li>
             <li><a href="https://github.com/mdkdrnevich">My GitHub</a></li>
             <li><a href="https://github.com/klannon/deep_learning">Deep Learning Project</a></li>
+            <li ng-class="{active: plots_collapsed}">
+              <a ng-model="plots_collapsed"
+                 ng-click="plots_collapsed = !plots_collapsed">Graphs<span class="caret"></span></a>
+                <ul ng-show="plots_collapsed">
+                    <li ng-repeat="plot in plots |orderBy:'num'"
+                        ng-click="smoothScroll($event)"><a href="#plot-{a plot.num a}">Plot {a plot.num+1 a}</a></li>
+                </ul>
+            </li>
+            <li ng-class="{active: tables_collapsed}">
+              <a ng-model="tables_collapsed"
+                 ng-click="tables_collapsed = !tables_collapsed">Tables<span class="caret"></span></a>
+                <ul ng-show="tables_collapsed">
+                    <li ng-repeat="plot in plots |orderBy:'num'"
+                        ng-click="smoothScroll($event)"><a href="#plot{a plot.num a}">Plot {a plot.num+1 a}</a></li>
+                </ul>
+            </li>
           </ul>
-            <ul class="nav nav-sidebar side-nav">
-                <li class="active"><a href="#graphs" ng-click="smoothScroll($event)">Graphs</a></li>
-                <li ng-repeat="plot in plots |orderBy:'num'"
-                    ng-click="smoothScroll($event)"><a href="#plot{a plot.num a}">Plot {a plot.num+1 a}</a></li>
-            </ul>
+
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header" id="dashboard">Dashboard</h1>

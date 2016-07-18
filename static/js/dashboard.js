@@ -63,7 +63,7 @@ module.controller("mainCtrl", function($scope, $http){
 
     $scope.smoothScroll = function($event) {
         $event.preventDefault();
-        var position = $event.target.hash ? $($event.target.hash).offset().top-$(".navbar").height() : 0;
+        var position = $event.target.hash ? $($event.target.hash).offset().top-$(".navbar").height()-10 : 0;
         $('html, body').animate({
            scrollTop: position
         }, 1000, function(){

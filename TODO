@@ -5,5 +5,9 @@ Have a checkbox for each dataset and then a compare dropdown button (can only se
 Add search bar to drop down using angular filter
 Add show/hide buttons for both plots and individual graphs
 Improve sidebar navigation
+Allow user to choose whether to add a row or column for next plot
+Implement model structure graphs
+Make graph size responsive to window size
+Add nicer data labels to data points
 
 Strong color: #913aff

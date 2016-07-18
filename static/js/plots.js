@@ -3,7 +3,7 @@
  */
 
 var max_width = +$("#graphs").css("width").slice(0,-2) - 80;
-var max_height = 500;
+var max_height = 450;
 var graph_padding = 10;
 
 var global_settings = [{
@@ -15,6 +15,8 @@ var global_settings = [{
     scales: {},
     current_labels: {x: '', y: '', top: '', right: ''}
 }];
+
+var numFormat = new Intl.NumberFormat("en-US", {maximumFractionDigits: 3});
 
 function add_graph(num) {
     ix = global_settings.length;
@@ -362,7 +364,7 @@ function add_points(plot, data) {
         .selectAll("circle")
         .data(data.experiment.results)
         .enter()
-        .append("circle")
+        .append("svg:circle")
         .attr("cx", padding)
         .attr("cy", h - padding)
         .attr("r", 0)
@@ -379,6 +381,10 @@ function add_points(plot, data) {
         })
         .attr("r", 3)
         .attr("fill", data.color);
+    d3.selectAll("#points-"+data.id+" circle")
+        .data(data.experiment.results)
+        .append("svg:title")
+        .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
     return data;
 }
 
@@ -423,6 +429,10 @@ function update_points(plot, data) {
         })
         .attr("r", 3)
         .attr("fill", data.color);
+
+    d3.selectAll("#points-"+data.id+" circle").select("title")
+        .data(data.experiment.results)
+        .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
 
     return data;
 }
