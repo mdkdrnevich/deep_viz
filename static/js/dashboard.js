@@ -11,8 +11,8 @@ module.config(['$interpolateProvider', function($interpolateProvider) {
 
 var readableNames = {
     auc: "Area Under the Curve",
-    current_time: "Time Elapsed",
-    num_seconds: "Time this Epoch",
+    current_time: "Time Elapsed (s)",
+    num_seconds: "Time this Epoch (s)",
     s_b: "Significance (S/sqrt(B))",
     test_accuracy: "Test Accuracy",
     test_loss: "Test Loss",

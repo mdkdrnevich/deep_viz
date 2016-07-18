@@ -24,9 +24,7 @@ def dashboard():
 @app.route('/data/<dataset>/<format>')
 def data(dataset=None, format=None):
     args = request.args
-    print dataset, format
     dataset, format = (dataset, format) if dataset and format else (args["dataset"], args["format"])
-    print dataset, format
     if dataset not in queries["dataset"] or format not in queries["format"]:
         queries["dataset"].append(dataset)
         queries["format"].append(format)

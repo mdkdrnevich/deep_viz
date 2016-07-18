@@ -446,8 +446,8 @@ function remove_axis(plot, which) {
         .transition()
         .delay(1501)
         .remove();
-    settings.current_labels.top = '';
-    settings.scales.top = null;
+    settings.current_labels[which] = '';
+    settings.scales[which] = null;
     return null;
 }
 

@@ -38,8 +38,10 @@ def experiment_to_dict(experiment):
 
     for ix, epoch in enumerate(d["results"]):
         epoch["num"] = ix + 1
-        epoch["curve"] = [dict([[f[0].name, f[1]] for f in r.ListFields()]) for r in epoch["curve"]._values]
-        epoch["matrix"] = [r.columns._values for r in epoch["matrix"]]
+        if "curve" in epoch:
+            epoch["curve"] = [dict([[f[0].name, f[1]] for f in r.ListFields()]) for r in epoch["curve"]._values]
+        if "matrix" in epoch:
+            epoch["matrix"] = [r.columns._values for r in epoch["matrix"]]
 
     # Convert optimizer
     opt = e.WhichOneof("optimizers")
