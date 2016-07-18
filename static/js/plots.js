@@ -2,7 +2,7 @@
  * Created by Matt on 7/3/2016.
  */
 
-var max_width = +$("#graphs").css("width").slice(0,-2);
+var max_width = +$("#graphs").css("width").slice(0,-2) - 80;
 var max_height = 500;
 var graph_padding = 10;
 
@@ -10,7 +10,7 @@ var global_settings = [{
     h: max_height,
     w: max_width,
     padding: 60,
-    svg_row: d3.select("#graphs").append("svg").attr("class", "svg row-0").attr("width", max_width).attr("height", max_height),
+    svg_row: d3.select("#graphs").append("svg").attr("class", "svg row-0").attr("width", max_width+19).attr("height", max_height),
     svg: d3.select("#graphs .svg.row-0").append("g").attr("id", "plot-0"),
     scales: {},
     current_labels: {x: '', y: '', top: '', right: ''}
@@ -28,12 +28,12 @@ function add_graph(num) {
         global_settings[ix].w = max_width/2 - graph_padding;
         global_settings[ix].svg_row = global_settings[ix-1].svg_row;
         global_settings[ix].svg = d3.select("#graphs .svg.row-"+Math.floor(ix/2)).append("g")
-            .attr("id", "plot-"+num).attr("transform", "translate("+(max_width/2+graph_padding)+", 0)");
+            .attr("id", "plot-"+num).attr("transform", "translate("+(max_width/2+19)+", 0)");
     } else {
         global_settings[ix].w = max_width;
         global_settings[ix].svg_row = d3.select("#graphs").append("svg")
             .attr("class", "svg row-"+Math.floor(ix/2))
-            .attr("width", max_width)
+            .attr("width", max_width+19)
             .attr("height", max_height);
         global_settings[ix].svg = d3.select("#graphs .svg.row-"+Math.floor(ix/2)).append("g").attr("id", "plot-"+num);
     }

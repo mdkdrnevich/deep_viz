@@ -61,13 +61,12 @@ module.controller("mainCtrl", function($scope, $http){
         }
     };
 
-    $scope.animateScroll = function($event) {
+    $scope.smoothScroll = function($event) {
         $event.preventDefault();
+        var position = $event.target.hash ? $($event.target.hash).offset().top-$(".navbar").height() : 0;
         $('html, body').animate({
-           scrollTop: $($event.target.hash).offset().top-$(".navbar").height()
-        }, 300, function(){
-           // when done, add hash to url
-           // (default click behaviour)
+           scrollTop: position
+        }, 1000, function(){
            window.location.hash = $event.target.hash;
         });
     };

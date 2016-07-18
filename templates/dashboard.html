@@ -62,20 +62,20 @@
       <div class="row" ng-controller="mainCtrl">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar side-nav">
-            <li class="active"><a href="#">Dashboard <span class="sr-only">(current)</span></a></li>
+            <li class="active"><a href="#" ng-click="smoothScroll($event)">Dashboard <span class="sr-only">(current)</span></a></li>
             <li><a href="https://github.com/mdkdrnevich">My GitHub</a></li>
             <li><a href="https://github.com/klannon/deep_learning">Deep Learning Project</a></li>
           </ul>
             <ul class="nav nav-sidebar side-nav">
-                <li class="active"><a href="#graphs" ng-click="animateScroll($event)">Graphs</a></li>
+                <li class="active"><a href="#graphs" ng-click="smoothScroll($event)">Graphs</a></li>
                 <li ng-repeat="plot in plots |orderBy:'num'"
-                    ng-click="animateScroll($event)"><a href="#plot{a plot.num a}">Plot {a plot.num+1 a}</a></li>
+                    ng-click="smoothScroll($event)"><a href="#plot{a plot.num a}">Plot {a plot.num+1 a}</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header" id="dashboard">Dashboard</h1>
 
-          <div class="row" id="graphs"></div>
+          <div class="row well" id="graphs"></div>
 
             <button class="btn btn-default btn-blue" type="button" ng-click="addPlot()">+Add Plot</button>
 

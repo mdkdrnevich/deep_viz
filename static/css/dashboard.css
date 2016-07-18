@@ -53,14 +53,17 @@ body {
   padding-left: 20px;
 }
 .nav-sidebar > li > a:hover {
-    background-color: #a2bff0;
+    background-color: #a2bff0 !important;
     color: #222;
+}
+.nav-sidebar > li > a:focus {
+    background-color: transparent;
 }
 .nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
   color: #fff;
-  background-color: #4287ee;
+  background-color: #4287ee !important;
 }
 
 /*
