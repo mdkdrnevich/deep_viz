@@ -3,3 +3,7 @@ Make a button for dynamically adding plots
 Make dropdown list drop up when it's too low
 Have a checkbox for each dataset and then a compare dropdown button (can only select two ds to compare)
 Add search bar to drop down using angular filter
+Add show/hide buttons for both plots and individual graphs
+Improve sidebar navigation
+
+Strong color: #913aff

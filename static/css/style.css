@@ -5,8 +5,13 @@
 
 .navbar .navbar-brand {
     color: #4287ee;
-    /* background: #787c83; */
     font-size: 38px;
+}
+
+
+
+.navbar-fixed-top {
+    border-color: #204f9e;
 }
 
 .dropdown-menu.open {

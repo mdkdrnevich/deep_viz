@@ -39,6 +39,38 @@ module.controller("mainCtrl", function($scope, $http){
 
     $scope.plots[0]._first_plot = true;
     $scope.plots[0].common_data = '';
+    $scope.plots[0].num = 0;
+
+    $scope.addPlot = function() {
+        var ix = $scope.plots.push({}) - 1;
+        $scope.plots[ix].datasets_keys = [];
+        $scope.plots[ix].datasets_values = [];
+        $scope.plots[ix].axes = {x: {key: 'current_time', value: readableNames['current_time']},
+                       y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                       top: {key: '', value: ''},
+                       right: {key: '', value: ''}};
+        $scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
+        $scope.plots[ix].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
+
+        $scope.plots[ix]._first_plot = true;
+        $scope.plots[ix].common_data = '';
+        $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
+        add_graph($scope.plots[ix].num);
+        for (var i=0; i < $scope.plots.length; i++) {
+            $scope.updatePlots(i);
+        }
+    };
+
+    $scope.animateScroll = function($event) {
+        $event.preventDefault();
+        $('html, body').animate({
+           scrollTop: $($event.target.hash).offset().top-$(".navbar").height()
+        }, 300, function(){
+           // when done, add hash to url
+           // (default click behaviour)
+           window.location.hash = $event.target.hash;
+        });
+    };
 
     // Adds a dataset to a plot and updates the plot
     $scope.addDataset = function(plot, name){

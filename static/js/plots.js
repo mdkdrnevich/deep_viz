@@ -4,16 +4,40 @@
 
 var max_width = +$("#graphs").css("width").slice(0,-2);
 var max_height = 500;
+var graph_padding = 10;
 
 var global_settings = [{
     h: max_height,
     w: max_width,
     padding: 60,
-    svg_row: d3.select("#graphs").append("svg").attr("width", max_width).attr("height", max_height),
-    svg: d3.select("#graphs svg").append("g").attr("id", "plot-0"),
+    svg_row: d3.select("#graphs").append("svg").attr("class", "svg row-0").attr("width", max_width).attr("height", max_height),
+    svg: d3.select("#graphs .svg.row-0").append("g").attr("id", "plot-0"),
     scales: {},
     current_labels: {x: '', y: '', top: '', right: ''}
 }];
+
+function add_graph(num) {
+    ix = global_settings.length;
+    global_settings.push({
+        h: max_height,
+        padding: 60,
+        scales: {},
+        current_labels: {x: '', y: '', top: '', right: ''}});
+    if (ix%2) {
+        global_settings[ix-1].w = max_width/2 - graph_padding;
+        global_settings[ix].w = max_width/2 - graph_padding;
+        global_settings[ix].svg_row = global_settings[ix-1].svg_row;
+        global_settings[ix].svg = d3.select("#graphs .svg.row-"+Math.floor(ix/2)).append("g")
+            .attr("id", "plot-"+num).attr("transform", "translate("+(max_width/2+graph_padding)+", 0)");
+    } else {
+        global_settings[ix].w = max_width;
+        global_settings[ix].svg_row = d3.select("#graphs").append("svg")
+            .attr("class", "svg row-"+Math.floor(ix/2))
+            .attr("width", max_width)
+            .attr("height", max_height);
+        global_settings[ix].svg = d3.select("#graphs .svg.row-"+Math.floor(ix/2)).append("g").attr("id", "plot-"+num);
+    }
+}
 
 function set_scales(plot, datasets, axes) {
     var settings = global_settings[plot];

@@ -61,133 +61,129 @@
     <div class="container-fluid" ng-app="main">
       <div class="row" ng-controller="mainCtrl">
         <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a>Overview <span class="sr-only">(current)</span></a></li>
+          <ul class="nav nav-sidebar side-nav">
+            <li class="active"><a href="#">Dashboard <span class="sr-only">(current)</span></a></li>
             <li><a href="https://github.com/mdkdrnevich">My GitHub</a></li>
             <li><a href="https://github.com/klannon/deep_learning">Deep Learning Project</a></li>
-            <li><a>Empty</a></li>
           </ul>
-          <ul class="nav nav-sidebar">
-            <li><a>Nav item</a></li>
-            <li><a>Nav item again</a></li>
-            <li><a>One more nav</a></li>
-            <li><a>Another nav item</a></li>
-            <li><a>More navigation</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><a>Nav item again</a></li>
-            <li><a>One more nav</a></li>
-            <li><a>Another nav item</a></li>
-          </ul>
+            <ul class="nav nav-sidebar side-nav">
+                <li class="active"><a href="#graphs" ng-click="animateScroll($event)">Graphs</a></li>
+                <li ng-repeat="plot in plots |orderBy:'num'"
+                    ng-click="animateScroll($event)"><a href="#plot{a plot.num a}">Plot {a plot.num+1 a}</a></li>
+            </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
+          <h1 class="page-header" id="dashboard">Dashboard</h1>
 
-          <div class="row" id="graphs">
-          </div>
+          <div class="row" id="graphs"></div>
 
-            <div class="dropdown">
-                <button class="btn btn-default btn-blue dropdown-toggle" type="button" data-toggle="dropdown">
-                    +Add Dataset<span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li class="dropdown-header">Datasets</li>
-                    <li class="dropdown-submenu" ng-repeat="(key, value) in py_datasets">
-                        <a tabindex="-1">{a key a}</a>
-                        <ul class="dropdown-menu">
-                            <li class="dropdown-header">Experiments</li>
-                            <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(0, key+'/'+exp)">{a exp a}</a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <button class="btn btn-default btn-blue" type="button" ng-click="addPlot()">+Add Plot</button>
+
+            <div ng-repeat="plot in plots | orderBy:'num'" id="plot{a plot.num a}">
+              <h2 class="sub-header">Plot {a plot.num + 1 a}</h2>
+
+                <div class="dropdown">
+                    <button class="btn btn-default btn-blue dropdown-toggle" type="button" data-toggle="dropdown">
+                        +Add Dataset<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Datasets</li>
+                        <li class="dropdown-submenu" ng-repeat="(key, value) in py_datasets">
+                            <a tabindex="-1">{a key a}</a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-header">Experiments</li>
+                                <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(plot.num, key+'/'+exp)">{a exp a}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <form>
+                  <div class="table-responsive">
+                    <table class="table table-striped" id="myTable">
+                      <thead>
+                        <tr>
+                            <td>
+                                <b>Type: </b>
+                            </td>
+                            <td>
+                                Add checkboxes here
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>X-Axis:</b>
+                                <select class="form-control" ng-model="plot.axes.x" ng-change="updatePlots(plot.num)"
+                                        ng-options="x_opt.value for x_opt in plot.common_data | orderBy:'value' track by x_opt.key">
+                                    <option value="" selected disabled>Select one</option>
+                                </select>
+                            </td>
+                            <td>
+                                <b>Y-Axis</b>
+                                <select class="form-control" ng-model="plot.axes.y" ng-change="updatePlots(plot.num)"
+                                        ng-options="y_opt.value for y_opt in plot.common_data | orderBy:'value' track by y_opt.key">
+                                    <option value="" selected disabled>Select one</option>
+                                </select>
+                            </td>
+                            <td>
+                                <b>Top-Axis:</b>
+                                <select class="form-control" ng-model="plot.axes.top" ng-change="updatePlots(plot.num)"
+                                        ng-options="top_opt.value for top_opt in plot.common_data | orderBy:'value' track by top_opt.key">
+                                    <option ng-click="removeAxis(plot.num, 'top')" value="" selected>None</option>
+                                </select>
+                            </td>
+                            <td>
+                                <b>Right-Axis:</b>
+                                <select class="form-control" ng-model="plot.axes.right" ng-change="updatePlots(plot.num)"
+                                        ng-options="right_opt.value for right_opt in plot.common_data | orderBy:'value' track by right_opt.key">
+                                    <option ng-click="removeAxis(plot.num, 'right')" value="" selected>None</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Dataset</th>
+                            <th>X-Scale</th>
+                            <th>Y-Scale</th>
+                            <th>Color</th>
+                            <th>Compare</th>
+                            <th>Remove</th>
+                        </tr>
+                      </thead>
+                      <tbody id="myTable-body">
+                        <tr ng-repeat="entry in plot.datasets_values" class="form-group">
+                            <td>
+                                {a entry.dataset a}
+                            </td>
+                            <td>
+                                <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots(plot.num)"
+                                        ng-options="axis_opt.key as axis_opt.value for axis_opt in plot.valid_x_axes | orderBy:'value'"
+                                        ng-init="entry.axes.x.scale = 'x'">
+                                    <option value="" selected disabled>Select one</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots(plot.num)"
+                                        ng-options="axis_opt.key as axis_opt.value for axis_opt in plot.valid_y_axes | orderBy:'value'"
+                                        ng-init="entry.axes.y.scale = 'y'">
+                                    <option value="" selected disabled>Select one</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(plot.num, entry)">
+                            </td>
+                            <td>
+                                Compare
+                            </td>
+                            <td>
+                                <input type="button" class="btn btn-primary btn-blue" value="Remove"
+                                       ng-click="removeDataset(plot.num, $event)" id="{a entry.id a}"/>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </form>
             </div>
-
-          <h2 class="sub-header">Plot 1</h2>
-            <form>
-              <div class="table-responsive">
-                <table class="table table-striped" id="myTable">
-                  <thead>
-                    <tr>
-                        <td>
-                            <b>Type: </b>
-                        </td>
-                        <td>
-                            Add checkboxes here
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <b>X-Axis:</b>
-                            <select class="form-control" ng-model="plots[0].axes.x" ng-change="updatePlots(0)"
-                                    ng-options="x_opt.value for x_opt in plots[0].common_data | orderBy:'value' track by x_opt.key">
-                                <option value="" selected disabled>Select one</option>
-                            </select>
-                        </td>
-                        <td>
-                            <b>Y-Axis</b>
-                            <select class="form-control" ng-model="plots[0].axes.y" ng-change="updatePlots(0)"
-                                    ng-options="y_opt.value for y_opt in plots[0].common_data | orderBy:'value' track by y_opt.key">
-                                <option value="" selected disabled>Select one</option>
-                            </select>
-                        </td>
-                        <td>
-                            <b>Top-Axis:</b>
-                            <select class="form-control" ng-model="plots[0].axes.top" ng-change="updatePlots(0)"
-                                    ng-options="top_opt.value for top_opt in plots[0].common_data | orderBy:'value' track by top_opt.key">
-                                <option ng-click="removeAxis(0, 'top')" value="" selected>None</option>
-                            </select>
-                        </td>
-                        <td>
-                            <b>Right-Axis:</b>
-                            <select class="form-control" ng-model="plots[0].axes.right" ng-change="updatePlots(0)"
-                                    ng-options="right_opt.value for right_opt in plots[0].common_data | orderBy:'value' track by right_opt.key">
-                                <option ng-click="removeAxis(0, 'right')" value="" selected>None</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Dataset</th>
-                        <th>X-Scale</th>
-                        <th>Y-Scale</th>
-                        <th>Color</th>
-                        <th>Compare</th>
-                        <th>Remove</th>
-                    </tr>
-                  </thead>
-                  <tbody id="myTable-body">
-                    <tr ng-repeat="entry in plots[0].datasets_values" class="form-group">
-                        <td>
-                            {a entry.dataset a}
-                        </td>
-                        <td>
-                            <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots(0)"
-                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in plots[0].valid_x_axes | orderBy:'value'"
-                                    ng-init="entry.axes.x.scale = 'x'">
-                                <option value="" selected disabled>Select one</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots(0)"
-                                    ng-options="axis_opt.key as axis_opt.value for axis_opt in plots[0].valid_y_axes | orderBy:'value'"
-                                    ng-init="entry.axes.y.scale = 'y'">
-                                <option value="" selected disabled>Select one</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(0, entry)">
-                        </td>
-                        <td>
-                            Compare
-                        </td>
-                        <td>
-                            <input type="button" class="btn btn-primary btn-blue" value="Remove"
-                                   ng-click="removeDataset(0, $event)" id="{a entry.id a}"/>
-                        </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </form>
         </div>
       </div>
     </div>
