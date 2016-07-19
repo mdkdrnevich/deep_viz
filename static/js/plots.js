@@ -49,6 +49,14 @@ function get_scales(datasets, axes) {
     });
     var y_min = d3.min(y_extents, function(d) {return d[0]});
     var y_max = d3.max(y_extents, function(d) {return d[1]});
+    
+    var radius_extents = datasets.map( function (data) {
+        return d3.extent(data.experiment.results, function(r) {
+            return r.s_b;
+        });
+    });
+    var r_min = d3.min(radius_extents, function(d) {return d[0]});
+    var r_max = d3.max(radius_extents, function(d) {return d[1]});
 
     var xScale = d3.scale.linear()
         .domain([x_min, x_max])
@@ -56,8 +64,11 @@ function get_scales(datasets, axes) {
     var yScale = d3.scale.linear()
         .domain([y_min, y_max])
         .range([h - padding, padding]);
+    var rScale = d3.scale.linear()
+        .domain([r_min, r_max])
+        .range([1, 4]);
 
-    var scales = {x: xScale, y: yScale};
+    var scales = {x: xScale, y: yScale, radius: rScale};
 
     if (axes.top.key && axes.top.value) {
         var top_extents = datasets.map( function (data) {
@@ -334,10 +345,12 @@ function add_points(scales, data) {
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
     var yScale = scales[data.axes.y.scale];
+    var rScale = scales.radius;
 
     // Generate points on scatterplot
     this.append("g")
         .attr("class", "points")
+        .attr("id", "plot"+data.id)
         .selectAll("circle")
         .data(data.experiment.results)
         .enter()
@@ -356,9 +369,11 @@ function add_points(scales, data) {
         .attr("cy", function (d) {
             return yScale(d[data.axes.y.key])
         })
-        .attr("r", 3)
+        .attr("r", function (d) {
+            return rScale(d.s_b);
+        })
         .attr("fill", data.color);
-    this.selectAll(".points circle")
+    this.selectAll(".points#plot"+data.id+" circle")
         .data(data.experiment.results)
         .append("svg:title")
         .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
@@ -370,8 +385,9 @@ function update_points(scales, data) {
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
     var yScale = scales[data.axes.y.scale];
+    var rScale = scales.radius;
 
-    var circles = this.selectAll(".points circle").data(data.experiment.results);
+    var circles = this.selectAll(".points#plot"+data.id+" circle").data(data.experiment.results);
     circles.exit()
         .transition()
         .duration(1500)
@@ -385,7 +401,9 @@ function update_points(scales, data) {
         .attr("cy", function (d) {
             return yScale(d[data.axes.y.key])
         })
-        .attr("r", 3)
+        .attr("r", function (d) {
+            return rScale(d.s_b);
+        })
         .attr("fill", data.color);
     circles.enter()
         .append("circle")
@@ -403,10 +421,12 @@ function update_points(scales, data) {
         .attr("cy", function (d) {
             return yScale(d[data.axes.y.key])
         })
-        .attr("r", 3)
+        .attr("r", function (d) {
+            return rScale(d.s_b);
+        })
         .attr("fill", data.color);
 
-    this.selectAll(".points circle").select("title")
+    this.selectAll(".points#plot"+data.id+" circle").select("title")
         .data(data.experiment.results)
         .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
 

@@ -44,7 +44,6 @@ module.controller("mainCtrl", function($scope, $http){
     $scope.plots[0].num = 0;
 
     $scope.addRow = function() {
-        // No need to update plots
         var ix = $scope.plots.push({}) - 1;
         $scope.plots[ix].datasets_keys = [];
         $scope.plots[ix].datasets_values = [];
@@ -60,12 +59,9 @@ module.controller("mainCtrl", function($scope, $http){
         $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
         var row = $scope.rows.push([0]) - 1;
         $scope.rows_keys.push(row);
-        //$timeout(add_graph, 0, [row, 0, $scope.plots[ix].num]);
-        //add_graph();
     };
 
     $scope.addColumn = function(row) {
-        // Only update plots in this row
         var ix = $scope.plots.push({}) - 1;
         $scope.plots[ix].datasets_keys = [];
         $scope.plots[ix].datasets_values = [];
@@ -80,7 +76,6 @@ module.controller("mainCtrl", function($scope, $http){
         $scope.plots[ix].common_data = '';
         $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
         var col = $scope.rows[row].push(+$scope.rows[row].slice(-1)+1) - 1;
-        //add_graph(row, col, $scope.plots[ix].num);
     };
 
     $scope.smoothScroll = function($event) {

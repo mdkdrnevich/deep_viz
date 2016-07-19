@@ -12,6 +12,8 @@
 
     <!-- Bootstrap core CSS -->
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="../static/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="../static/css/dashboard.css" rel="stylesheet">
@@ -85,12 +87,15 @@
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header" id="dashboard">Dashboard</h1>
 
+            <!-- Graph Container -->
           <div class="well" id="graphs">
               <div class="row" ng-repeat="row in rows_keys">
                   <div class="row">
                       <div class="col-md-12">
                           <button class="btn btn-default btn-blue pull-right" type="button"
-                                  ng-click="addColumn(row)" title="Add Column">+</button>
+                                  ng-click="addColumn(row)" title="Add Column">
+                              <span class="fa fa-plus"></span>
+                          </button>
                       </div>
                   </div>
                   <div class="row row-{a row a}">
@@ -100,15 +105,17 @@
                 </div>
               </div>
           </div>
+            <button class="btn btn-default btn-blue" type="button" ng-click="addRow()">
+                <span class="fa fa-plus"></span> <b>Add Row</b>
+            </button>
 
-            <button class="btn btn-default btn-blue" type="button" ng-click="addRow()">+Add Row</button>
-
+            <!-- Table Container -->
             <div ng-repeat="plot in plots | orderBy:'num'" id="plot{a plot.num a}">
               <h2 class="sub-header">Plot {a plot.num + 1 a}</h2>
 
                 <div class="dropdown">
                     <button class="btn btn-default btn-blue dropdown-toggle" type="button" data-toggle="dropdown">
-                        +Add Dataset<span class="caret"></span>
+                        <span class="fa fa-plus"></span> <b>Add Dataset</b><span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Datasets</li>

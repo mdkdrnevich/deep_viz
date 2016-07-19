@@ -5,7 +5,6 @@ Have a checkbox for each dataset and then a compare dropdown button (can only se
 Add search bar to drop down using angular filter
 Add show/hide buttons for both plots and individual graphs
 Improve sidebar navigation
-Allow user to choose whether to add a row or column for next plot
 Implement model structure graphs
 Make graph size responsive to window size
 Add nicer data labels to data points
@@ -15,8 +14,8 @@ Allow user to select area to zoom in on
 Overlay checkbox to set opacity to 0.5
 Make a cache size to limit the amount of data stored in memory
 Plot resize argument in %?
-Use `this` inside plot calls, and make settings local to the object and include settings.plot_id
 Scale scatterplot circle radius by S/sqrt(B) value
 Make num_epochs an ordinal scale (.rangeBands)
+Improve table design layout (label plots better)
 
 Strong color: #913aff
