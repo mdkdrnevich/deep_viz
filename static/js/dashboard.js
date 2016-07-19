@@ -28,6 +28,8 @@ var readableNames = {
 module.controller("mainCtrl", function($scope, $http){
     $scope.py_datasets = py_datasets;
     $scope.plots = [{}];
+    $scope.rows = [[0]];
+    $scope.rows_keys = [0];
     $scope.plots[0].datasets_keys = [];
     $scope.plots[0].datasets_values = [];
     $scope.plots[0].axes = {x: {key: 'current_time', value: readableNames['current_time']},
@@ -41,7 +43,8 @@ module.controller("mainCtrl", function($scope, $http){
     $scope.plots[0].common_data = '';
     $scope.plots[0].num = 0;
 
-    $scope.addPlot = function() {
+    $scope.addRow = function() {
+        // No need to update plots
         var ix = $scope.plots.push({}) - 1;
         $scope.plots[ix].datasets_keys = [];
         $scope.plots[ix].datasets_values = [];
@@ -55,10 +58,29 @@ module.controller("mainCtrl", function($scope, $http){
         $scope.plots[ix]._first_plot = true;
         $scope.plots[ix].common_data = '';
         $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
-        add_graph($scope.plots[ix].num);
-        for (var i=0; i < $scope.plots.length; i++) {
-            $scope.updatePlots(i);
-        }
+        var row = $scope.rows.push([0]) - 1;
+        $scope.rows_keys.push(row);
+        //$timeout(add_graph, 0, [row, 0, $scope.plots[ix].num]);
+        //add_graph();
+    };
+
+    $scope.addColumn = function(row) {
+        // Only update plots in this row
+        var ix = $scope.plots.push({}) - 1;
+        $scope.plots[ix].datasets_keys = [];
+        $scope.plots[ix].datasets_values = [];
+        $scope.plots[ix].axes = {x: {key: 'current_time', value: readableNames['current_time']},
+                       y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                       top: {key: '', value: ''},
+                       right: {key: '', value: ''}};
+        $scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
+        $scope.plots[ix].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
+
+        $scope.plots[ix]._first_plot = true;
+        $scope.plots[ix].common_data = '';
+        $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
+        var col = $scope.rows[row].push(+$scope.rows[row].slice(-1)+1) - 1;
+        //add_graph(row, col, $scope.plots[ix].num);
     };
 
     $scope.smoothScroll = function($event) {
@@ -100,14 +122,16 @@ module.controller("mainCtrl", function($scope, $http){
 
             myScope.common_data = $scope.getCommonData(plot);
 
-            set_scales(plot, myScope.datasets_values, myScope.axes);
+            var svg = d3.select("svg#plot-"+plot);
+            var scales = get_scales.call(svg, myScope.datasets_values, myScope.axes);
+
             if (myScope._first_plot) {
-                add_axes(plot, myScope.axes);
-                add_points(plot, this_ds);
+                add_axes.call(svg, scales, myScope.axes);
+                add_points.call(svg, scales, this_ds);
                 myScope._first_plot = false;
             }
             else {
-                add_points(plot, this_ds);
+                add_points.call(svg, scales, this_ds);
                 $scope.updatePlots(plot);
             }
 
@@ -118,14 +142,15 @@ module.controller("mainCtrl", function($scope, $http){
     $scope.removeDataset = function(plot, $event) {
         // Remove a dataset from the DOM
         var myScope = $scope.plots[plot];
+        var svg = d3.select("svg#plot-"+plot);
         var loc = myScope.datasets_keys.indexOf(+$event.target.id.split('-')[2]);
-        remove_points(plot, myScope.datasets_values[loc]);
+        remove_points.call(svg);
 
         myScope.datasets_values.splice(loc, 1);
         myScope.datasets_keys.splice(loc, 1);
 
         if (myScope.datasets_keys.length == 0) {
-            remove_axes(plot);
+            remove_axes.call(svg);
             myScope._first_plot = true;
         } else {
             $scope.updatePlots(plot);
@@ -134,22 +159,23 @@ module.controller("mainCtrl", function($scope, $http){
 
     // Updates an individual plot
     $scope.updatePlot = function(plot, dataset) {
-        update_points(plot, dataset);
+        var myScope = $scope.plots[plot];
+        var svg = d3.select("svg#plot-"+plot);
+        var scales = get_scales.call(svg, myScope.datasets_values, myScope.axes);
+        update_points.call(svg, scales, dataset);
     };
 
     // Updates all of the plots
     $scope.updatePlots = function(plot) {
         var myScope = $scope.plots[plot];
+        var svg = d3.select("svg#plot-"+plot);
+
         var bool_top = Boolean(myScope.axes.top);
         var bool_right = Boolean(myScope.axes.right);
-        if (!bool_top) {
+        if (!bool_top)
             myScope.axes.top = {key: '', value: ''};
-            remove_axis(plot, 'top');
-        }
-        if (!bool_right) {
+        if (!bool_right)
             myScope.axes.right = {key: '', value: ''};
-            remove_axis(plot, 'right');
-        }
         myScope.datasets_values.forEach(function (dataset) {
             if (!bool_top) dataset.axes.x.scale = 'x';
             if (!bool_right) dataset.axes.y.scale = 'y';
@@ -160,8 +186,9 @@ module.controller("mainCtrl", function($scope, $http){
             dataset.axes.y.key = myScope.axes[y_scale].key;
             dataset.axes.y.value = myScope.axes[y_scale].value;
         });
-        set_scales(plot, myScope.datasets_values, myScope.axes);
-        update_axes(plot, myScope.axes);
+        var scales = get_scales.call(svg, myScope.datasets_values, myScope.axes);
+        update_axes.call(svg, scales, myScope.axes);
+
         myScope.datasets_values.forEach(function (dataset) {
             $scope.updatePlot(plot, dataset);
         });
@@ -200,7 +227,6 @@ module.controller("mainCtrl", function($scope, $http){
     // Removes an optional axis
     $scope.removeAxis = function(plot, which) {
         var myScope = $scope.plots[plot];
-        console.log("Click");
         switch(which) {
             case 'top':
                 myScope.axes.top = {key: '', value: ''};
@@ -225,4 +251,19 @@ module.controller("mainCtrl", function($scope, $http){
         });
         return rval;
     };
-});
+})
+    .directive("graphSvg", function($timeout) {
+        return {
+            link: function(scope, element, attrs) {
+                var func = function() {
+                    var num = scope.plots[scope.plots.length-1].num;
+                    add_graph(element, num);
+                    if (+attrs.graphSvg > 0)
+                        for (var i=0; i < scope.plots.length - 1; i++) {
+                            scope.updatePlots(i);
+                        }
+                };
+                $timeout(func, 0);
+            }
+        };
+    });
