@@ -58,8 +58,10 @@
       </div>
     </nav>
 
+
     <div class="container-fluid" ng-app="main">
       <div class="row" ng-controller="mainCtrl">
+          <!-- Nav Sidebar -->
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar side-nav">
             <li class="active"><a href="#" ng-click="smoothScroll($event)">Dashboard <span class="sr-only">(current)</span></a></li>
@@ -70,7 +72,7 @@
                  ng-click="plots_collapsed = !plots_collapsed">Graphs<span class="caret"></span></a>
                 <ul ng-show="plots_collapsed">
                     <li ng-repeat="plot in plots |orderBy:'num'"
-                        ng-click="smoothScroll($event)"><a href="#plot-{a plot.num a}">Plot {a plot.num+1 a}</a></li>
+                        ng-click="smoothScroll($event)"><a href="#plot-{a plot.num a}">{a plot.name a}</a></li>
                 </ul>
             </li>
             <li ng-class="{active: tables_collapsed}">
@@ -78,7 +80,7 @@
                  ng-click="tables_collapsed = !tables_collapsed">Tables<span class="caret"></span></a>
                 <ul ng-show="tables_collapsed">
                     <li ng-repeat="plot in plots |orderBy:'num'"
-                        ng-click="smoothScroll($event)"><a href="#plot{a plot.num a}">Plot {a plot.num+1 a}</a></li>
+                        ng-click="smoothScroll($event)"><a href="#plot{a plot.num a}">{a plot.name a}</a></li>
                 </ul>
             </li>
           </ul>
@@ -111,22 +113,30 @@
 
             <!-- Table Container -->
             <div ng-repeat="plot in plots | orderBy:'num'" id="plot{a plot.num a}">
-              <h2 class="sub-header">Plot {a plot.num + 1 a}</h2>
+              <h2 class="sub-header">{a plot.name a}</h2>
 
-                <div class="dropdown">
-                    <button class="btn btn-default btn-blue dropdown-toggle" type="button" data-toggle="dropdown">
-                        <span class="fa fa-plus"></span> <b>Add Dataset</b><span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li class="dropdown-header">Datasets</li>
-                        <li class="dropdown-submenu" ng-repeat="(key, value) in py_datasets">
-                            <a tabindex="-1">{a key a}</a>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-blue dropdown-toggle" type="button" data-toggle="dropdown">
+                                <span class="fa fa-plus"></span> <b>Add Dataset</b><span class="caret"></span>
+                            </button>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-header">Experiments</li>
-                                <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(plot.num, key+'/'+exp)">{a exp a}</a></li>
+                                <li class="dropdown-header">Datasets</li>
+                                <li class="dropdown-submenu" ng-repeat="(key, value) in py_datasets">
+                                    <a tabindex="-1">{a key a}</a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-header">Experiments</li>
+                                        <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(plot.num, key+'/'+exp)">{a exp a}</a></li>
+                                    </ul>
+                                </li>
                             </ul>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-2 input-group">
+                        <label class="btn-blue input-group-addon"><b>Title:</b></label>
+                        <input class="form-control" type="text" ng-model="plot.name">
+                    </div>
                 </div>
 
                 <form>
@@ -138,7 +148,13 @@
                                 <b>Type: </b>
                             </td>
                             <td>
-                                Add checkboxes here
+                                <div class="input-group">
+                                    <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
+                                                                       value="scatter">Scatterplot</label>
+                                    <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
+                                                                       value="hist">Histogram</label>
+                                </div>
+
                             </td>
                         </tr>
                         <tr>
@@ -227,7 +243,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="../static/js/bootstrap.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="../static/js/plots.js"></script>
+    <script src="../static/js/utils.js"></script>
+    <script src="../static/js/scatter.js"></script>
+    <script src="../static/js/hist.js"></script>
     <script src="../static/js/dashboard.js"></script>
 
 </body></html>

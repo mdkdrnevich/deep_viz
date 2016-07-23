@@ -25,6 +25,11 @@ var readableNames = {
     right: "Right-Axis"
 };
 
+var libs = {
+    scatter: scatter,
+    hist: hist
+};
+
 module.controller("mainCtrl", function($scope, $http){
     $scope.py_datasets = py_datasets;
     $scope.plots = [{}];
@@ -33,30 +38,33 @@ module.controller("mainCtrl", function($scope, $http){
     $scope.plots[0].datasets_keys = [];
     $scope.plots[0].datasets_values = [];
     $scope.plots[0].axes = {x: {key: 'current_time', value: readableNames['current_time']},
-                   y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
-                   top: {key: '', value: ''},
-                   right: {key: '', value: ''}};
+                            y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                            top: {key: '', value: ''},
+                            right: {key: '', value: ''}};
     $scope.plots[0].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
     $scope.plots[0].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
-
+    $scope.plots[0].plot_type = "scatter";
     $scope.plots[0]._first_plot = true;
     $scope.plots[0].common_data = '';
     $scope.plots[0].num = 0;
+    $scope.plots[0].name = 'Plot 1';
 
     $scope.addRow = function() {
         var ix = $scope.plots.push({}) - 1;
         $scope.plots[ix].datasets_keys = [];
         $scope.plots[ix].datasets_values = [];
         $scope.plots[ix].axes = {x: {key: 'current_time', value: readableNames['current_time']},
-                       y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
-                       top: {key: '', value: ''},
-                       right: {key: '', value: ''}};
+                                 y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                                 top: {key: '', value: ''},
+                                 right: {key: '', value: ''}};
         $scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
         $scope.plots[ix].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
-
+        $scope.plots[ix].plot_type = "scatter";
         $scope.plots[ix]._first_plot = true;
         $scope.plots[ix].common_data = '';
-        $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
+        var num = $scope.plots[ix-1].num + 1;
+        $scope.plots[ix].num = num;
+        $scope.plots[ix].name = 'Plot '+(num+1);
         var row = $scope.rows.push([0]) - 1;
         $scope.rows_keys.push(row);
     };
@@ -66,15 +74,17 @@ module.controller("mainCtrl", function($scope, $http){
         $scope.plots[ix].datasets_keys = [];
         $scope.plots[ix].datasets_values = [];
         $scope.plots[ix].axes = {x: {key: 'current_time', value: readableNames['current_time']},
-                       y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
-                       top: {key: '', value: ''},
-                       right: {key: '', value: ''}};
+                                 y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                                 top: {key: '', value: ''},
+                                 right: {key: '', value: ''}};
         $scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
         $scope.plots[ix].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
-
+        $scope.plots[ix].plot_type = "scatter";
         $scope.plots[ix]._first_plot = true;
         $scope.plots[ix].common_data = '';
-        $scope.plots[ix].num = $scope.plots[ix-1].num + 1;
+        var num = $scope.plots[ix-1].num + 1;
+        $scope.plots[ix].num = num;
+        $scope.plots[ix].name = 'Plot '+(num+1);
         var col = $scope.rows[row].push(+$scope.rows[row].slice(-1)+1) - 1;
     };
 
@@ -118,18 +128,18 @@ module.controller("mainCtrl", function($scope, $http){
             myScope.common_data = $scope.getCommonData(plot);
 
             var svg = d3.select("svg#plot-"+plot);
-            var scales = get_scales.call(svg, myScope.datasets_values, myScope.axes);
 
+            var lib = libs[myScope.plot_type];
+            var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes);
             if (myScope._first_plot) {
-                add_axes.call(svg, scales, myScope.axes);
-                add_points.call(svg, scales, this_ds);
+                lib.add_axes.call(svg, scales, myScope.axes);
+                lib.add_data.call(svg, scales, this_ds);
                 myScope._first_plot = false;
             }
             else {
-                add_points.call(svg, scales, this_ds);
+                lib.add_data.call(svg, scales, this_ds);
                 $scope.updatePlots(plot);
             }
-
         });
     };
 
@@ -155,14 +165,16 @@ module.controller("mainCtrl", function($scope, $http){
     // Updates an individual plot
     $scope.updatePlot = function(plot, dataset) {
         var myScope = $scope.plots[plot];
+        var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
-        var scales = get_scales.call(svg, myScope.datasets_values, myScope.axes);
-        update_points.call(svg, scales, dataset);
+        var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes);
+        lib.update_data.call(svg, scales, dataset);
     };
 
     // Updates all of the plots
     $scope.updatePlots = function(plot) {
         var myScope = $scope.plots[plot];
+        var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
 
         var bool_top = Boolean(myScope.axes.top);
@@ -181,8 +193,8 @@ module.controller("mainCtrl", function($scope, $http){
             dataset.axes.y.key = myScope.axes[y_scale].key;
             dataset.axes.y.value = myScope.axes[y_scale].value;
         });
-        var scales = get_scales.call(svg, myScope.datasets_values, myScope.axes);
-        update_axes.call(svg, scales, myScope.axes);
+        var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes);
+        lib.update_axes.call(svg, scales, myScope.axes);
 
         myScope.datasets_values.forEach(function (dataset) {
             $scope.updatePlot(plot, dataset);

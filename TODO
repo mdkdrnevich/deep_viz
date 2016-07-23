@@ -17,5 +17,6 @@ Plot resize argument in %?
 Scale scatterplot circle radius by S/sqrt(B) value
 Make num_epochs an ordinal scale (.rangeBands)
 Improve table design layout (label plots better)
+RIGHT AXIS NOT MOVING WITH PLOT
 
 Strong color: #913aff

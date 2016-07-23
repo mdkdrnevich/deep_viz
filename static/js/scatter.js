@@ -2,38 +2,17 @@
  * Created by Matt on 7/3/2016.
  */
 
-var max_width = +$("#graphs").css("width").slice(0,-2) - 80;
-var max_height = 450;
+var scatter = {};
 
-var settings = {
-    h: max_height,
-    w: max_width,
-    padding: 60
-};
+/*
+This section gets scales for data
+ */
 
-var numFormat = new Intl.NumberFormat("en-US", {maximumFractionDigits: 3});
-
-function get_container_width(element) {
-    var rval = 0;
-    element.each(function() {
-        rval = +d3.select(this.parentNode).style("width").slice(0,-2);
-        rval -= +d3.select(this.parentNode).style("padding-right").slice(0,-2);
-        rval -= +d3.select(this.parentNode).style("padding-left").slice(0,-2);
-    });
-    return rval;
-}
-
-function add_graph(element, num) {
-    var svg = d3.select($(element).get(0)).append("svg").attr("id", "plot-"+num).attr("height", max_height);
-    svg.attr("width", get_container_width(svg));
-    return svg;
-}
-
-function get_scales(datasets, axes) {
+scatter.get_scales = function(datasets, axes) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
-
+    
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
             return r[axes.x.key];
@@ -97,9 +76,13 @@ function get_scales(datasets, axes) {
                                     .range([h - padding, padding]);
     }
     return scales;
-}
+};
 
-function add_axes(scales, axes) {
+/*
+This section generates and updates axes
+ */
+
+scatter.add_axes = function(scales, axes) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
@@ -141,15 +124,15 @@ function add_axes(scales, axes) {
         .text(axes.y.value);
 
     if (axes.top.key && axes.top.value) {
-        add_top_axis.call(this, scales.top, axes.top.value);
+        scatter.add_top_axis.call(this, scales.top, axes.top.value);
     }
     if (axes.right.key && axes.right.value) {
-        add_right_axis.call(this, scales.right, axes.right.value);
+        scatter.add_right_axis.call(this, scales.right, axes.right.value);
     }
     return this;
-}
+};
 
-function add_top_axis(scale, label) {
+scatter.add_top_axis = function(scale, label) {
     var w = get_container_width(this);
     var padding = settings.padding;
 
@@ -174,9 +157,9 @@ function add_top_axis(scale, label) {
         .style("opacity", 1)
         .text(label);
     return this;
-}
+};
 
-function add_right_axis(scale, label) {
+scatter.add_right_axis = function(scale, label) {
     var w = get_container_width(this);
     var padding = settings.padding;
 
@@ -202,9 +185,9 @@ function add_right_axis(scale, label) {
         .style("opacity", 1)
         .text(label);
     return this;
-}
+};
 
-function update_axes(scales, axes) {
+scatter.update_axes = function(scales, axes) {
     var w = get_container_width(this);
     var h = this.attr("height");
     var padding = settings.padding;
@@ -271,7 +254,7 @@ function update_axes(scales, axes) {
     var topAxis, rightAxis;
 
     if (topLabel.empty() && axes.top.value) {
-        add_top_axis.call(this, scales.top, axes.top.value)
+        scatter.add_top_axis.call(this, scales.top, axes.top.value)
     } else if (!topLabel.empty() && !axes.top.value) {
         remove_axis.call(this, 'top');
     } else if (!topLabel.empty() && (topLabel.text() != axes.top.value)) {
@@ -303,12 +286,14 @@ function update_axes(scales, axes) {
     }
 
     if (rightLabel.empty() && axes.right.value) {
-        add_right_axis.call(this, scales.right, axes.right.value)
+        scatter.add_right_axis.call(this, scales.right, axes.right.value)
     } else if (!rightLabel.empty() && !axes.right.value) {
         remove_axis.call(this, 'right');
     } else if (!rightLabel.empty() && (rightLabel.text() != axes.right.value)) {
         rightAxis = d3.svg.axis().scale(scales.right).orient("right").ticks(15);
-        this.select(".right.axis").transition().duration(3000).call(rightAxis);
+        this.select(".right.axis").transition().duration(3000)
+            .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+            .call(rightAxis);
         this.select(".right.label")
             .transition()
             .duration(1000)
@@ -329,7 +314,9 @@ function update_axes(scales, axes) {
             .style("opacity", 1);
     } else if (!rightLabel.empty() && (rightLabel.text() == axes.right.value)) {
         rightAxis = d3.svg.axis().scale(scales.right).orient("right").ticks(15);
-        this.select(".right.axis").transition().duration(3000).call(rightAxis);
+        this.select(".right.axis").transition().duration(3000)
+            .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+            .call(rightAxis);
         this.select(".right.label")
             .transition()
             .duration(3000)
@@ -338,9 +325,13 @@ function update_axes(scales, axes) {
             .attr("transform", "rotate(90, 40," + (padding + 35) + ")")
     }
     return this;
-}
+};
 
-function add_points(scales, data) {
+/*
+This section creates and updates scatterplot points
+ */
+
+scatter.add_data = function(scales, data) {
     var h = this.attr("height");
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
@@ -378,9 +369,9 @@ function add_points(scales, data) {
         .append("svg:title")
         .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
     return this;
-}
+};
 
-function update_points(scales, data) {
+scatter.update_data = function(scales, data) {
     var h = this.attr("height");
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
@@ -431,35 +422,4 @@ function update_points(scales, data) {
         .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
 
     return this;
-}
-
-function remove_axis(which) {
-    this.select("."+which+".axis")
-        .transition()
-        .duration(1500)
-        .style("opacity", 0)
-        .transition()
-        .delay(1501)
-        .remove();
-    return this;
-}
-
-function remove_axes() {
-    this.selectAll(".axis")
-        .transition()
-        .duration(1500)
-        .style("opacity", 0)
-        .transition()
-        .delay(1501)
-        .remove();
-    return this;
-}
-
-function remove_points() {
-    this.selectAll(".points circle")
-        .transition()
-        .duration(1500)
-        .style("opacity", 0)
-        .remove();
-    return this;
-}
+};

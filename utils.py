@@ -1,4 +1,9 @@
+from __future__ import division
 from deep_learning.protobuf import load_experiment
+from deep_learning.trainNN import load_model
+from deep_learning.utils.dataset import load_dataset
+from math import ceil
+import numpy as np
 import json
 from sys import getsizeof
 
@@ -32,6 +37,8 @@ def experiment_to_dict(experiment):
 
     # Convert dataset
     d["dataset"] = e.Dataset.Name(e.dataset)
+    d["description"] = e.description
+    d["format"] = e.coordinates if '/' in e.coordinates else '/'.join(e.coordinates.split('_'))
 
     # Convert results
     d["results"] = [dict([[f[0].name, f[1]] for f in r.ListFields()]) for r in e.results._values]
@@ -42,6 +49,9 @@ def experiment_to_dict(experiment):
             epoch["curve"] = [dict([[f[0].name, f[1]] for f in r.ListFields()]) for r in epoch["curve"]._values]
         if "matrix" in epoch:
             epoch["matrix"] = [r.columns._values for r in epoch["matrix"]]
+        if "output" in epoch:
+            epoch["output"] = dict(background=epoch["output"].background._values,
+                                   signal=epoch["output"].signal._values)
 
     # Convert optimizer
     opt = e.WhichOneof("optimizers")
@@ -59,7 +69,6 @@ def experiment_to_dict(experiment):
         r["current_time"] = sum([e["num_seconds"] for e in d["results"][:ix+1]])
 
     return d
-
 
 if __name__ == "__main__":
     js = experiment_to_dict("ttHLep/U_1to1_l1")

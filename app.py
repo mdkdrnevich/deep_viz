@@ -44,5 +44,13 @@ def data(dataset=None, format=None):
     else:
         return jsonify()
 
+@app.route('/json')
+def getJSON():
+    filename = request.args["filename"]
+    if file:
+        return jsonify(**json.load(open(filename)))
+    else:
+        return jsonify()
+
 if __name__ == "__main__":
     app.run(debug=True)
