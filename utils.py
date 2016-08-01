@@ -1,6 +1,6 @@
 from __future__ import division
 from deep_learning.protobuf import load_experiment
-from deep_learning.trainNN import load_model
+from deep_learning.models import load_model
 from deep_learning.utils.dataset import load_dataset
 from math import ceil
 import numpy as np

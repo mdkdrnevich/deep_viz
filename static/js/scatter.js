@@ -12,7 +12,7 @@ scatter.get_scales = function(datasets, axes) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
-    
+
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
             return r[axes.x.key];
@@ -340,8 +340,8 @@ scatter.add_data = function(scales, data) {
 
     // Generate points on scatterplot
     this.append("g")
-        .attr("class", "points")
-        .attr("id", "plot"+data.id)
+        .classed("data", true)
+        .classed("plot"+data.id, true)
         .selectAll("circle")
         .data(data.experiment.results)
         .enter()
@@ -361,10 +361,11 @@ scatter.add_data = function(scales, data) {
             return yScale(d[data.axes.y.key])
         })
         .attr("r", function (d) {
-            return rScale(d.s_b);
+            return 3;
+            //return rScale(d.s_b);
         })
         .attr("fill", data.color);
-    this.selectAll(".points#plot"+data.id+" circle")
+    this.selectAll(".data.plot"+data.id+" circle")
         .data(data.experiment.results)
         .append("svg:title")
         .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
@@ -378,7 +379,7 @@ scatter.update_data = function(scales, data) {
     var yScale = scales[data.axes.y.scale];
     var rScale = scales.radius;
 
-    var circles = this.selectAll(".points#plot"+data.id+" circle").data(data.experiment.results);
+    var circles = this.selectAll(".data.plot"+data.id+" circle").data(data.experiment.results);
     circles.exit()
         .transition()
         .duration(1500)
@@ -393,7 +394,8 @@ scatter.update_data = function(scales, data) {
             return yScale(d[data.axes.y.key])
         })
         .attr("r", function (d) {
-            return rScale(d.s_b);
+            return 3;
+            //return rScale(d.s_b);
         })
         .attr("fill", data.color);
     circles.enter()
@@ -413,13 +415,13 @@ scatter.update_data = function(scales, data) {
             return yScale(d[data.axes.y.key])
         })
         .attr("r", function (d) {
-            return rScale(d.s_b);
+            return 3;
+            //return rScale(d.s_b);
         })
         .attr("fill", data.color);
 
-    this.selectAll(".points#plot"+data.id+" circle").select("title")
+    this.selectAll(".data.plot"+data.id+" circle").select("title")
         .data(data.experiment.results)
         .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
-
     return this;
 };

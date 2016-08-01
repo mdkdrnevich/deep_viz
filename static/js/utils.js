@@ -29,6 +29,11 @@ function add_graph(element, num) {
 }
 
 /*
+This section provides general update functions
+ */
+
+
+/*
 This section removes elements from the graphs and DOM
  */
 
@@ -54,8 +59,8 @@ function remove_axes() {
     return this;
 }
 
-function remove_points() {
-    this.selectAll(".points circle")
+function remove_data(data) {
+    this.selectAll(".data.plot"+data.id)
         .transition()
         .duration(1500)
         .style("opacity", 0)

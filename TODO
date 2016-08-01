@@ -6,7 +6,6 @@ Add search bar to drop down using angular filter
 Add show/hide buttons for both plots and individual graphs
 Improve sidebar navigation
 Implement model structure graphs
-Make graph size responsive to window size
 Add nicer data labels to data points
 Make dropdowns smooth
 Add grid option
@@ -15,8 +14,7 @@ Overlay checkbox to set opacity to 0.5
 Make a cache size to limit the amount of data stored in memory
 Plot resize argument in %?
 Scale scatterplot circle radius by S/sqrt(B) value
-Make num_epochs an ordinal scale (.rangeBands)
 Improve table design layout (label plots better)
-RIGHT AXIS NOT MOVING WITH PLOT
+Make whole svg removable so that table re-expands
 
 Strong color: #913aff

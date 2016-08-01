@@ -150,38 +150,49 @@
                             <td>
                                 <div class="input-group">
                                     <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
-                                                                       value="scatter">Scatterplot</label>
+                                                                       value="scatter" ng-click="changePlots(plot.num)">
+                                        Scatterplot</label>
                                     <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
-                                                                       value="hist">Histogram</label>
+                                                                       value="hist" ng-click="changePlots(plot.num)">
+                                        Histogram</label>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Options: </b>
+                            </td>
+                            <td>
+                                <div class="input-group">
 
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <b>X-Axis:</b>
-                                <select class="form-control" ng-model="plot.axes.x" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.x" ng-change="updatePlots(plot.num)"
                                         ng-options="x_opt.value for x_opt in plot.common_data | orderBy:'value' track by x_opt.key">
                                     <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
                                 <b>Y-Axis</b>
-                                <select class="form-control" ng-model="plot.axes.y" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.y" ng-change="updatePlots(plot.num)"
                                         ng-options="y_opt.value for y_opt in plot.common_data | orderBy:'value' track by y_opt.key">
                                     <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
                                 <b>Top-Axis:</b>
-                                <select class="form-control" ng-model="plot.axes.top" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.top" ng-change="updatePlots(plot.num)"
                                         ng-options="top_opt.value for top_opt in plot.common_data | orderBy:'value' track by top_opt.key">
                                     <option ng-click="removeAxis(plot.num, 'top')" value="" selected>None</option>
                                 </select>
                             </td>
                             <td>
                                 <b>Right-Axis:</b>
-                                <select class="form-control" ng-model="plot.axes.right" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.right" ng-change="updatePlots(plot.num)"
                                         ng-options="right_opt.value for right_opt in plot.common_data | orderBy:'value' track by right_opt.key">
                                     <option ng-click="removeAxis(plot.num, 'right')" value="" selected>None</option>
                                 </select>
