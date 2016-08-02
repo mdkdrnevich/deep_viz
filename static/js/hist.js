@@ -77,18 +77,21 @@ hist.add_axes = function(scales, data, options) {
         .attr("transform", "translate(" + (padding - 5) + ",0)")
         .call(yAxis);
 
-    if (options.grid) {
-        var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
-        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
-        this.append("g")
-            .classed("x grid", true)
-            .attr("transform", "translate(0," + (h - padding + 5) + ")")
-            .call(xGrid).style("opacity", 0);
-        this.append("g")
-            .classed("y grid", true)
-            .attr("transform", "translate(" + (padding - 5) + ",0)")
-            .call(yGrid);
-    }
+    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
+    this.append("g")
+        .classed("x grid", true)
+        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .call(xGrid)
+        .style("opacity", 0);
+    this.append("g")
+        .classed("y grid", true)
+        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .call(yGrid)
+        .style("opacity", 0);
+
+    if (options.grid)
+        this.select(".y.grid").transition().duration(1500).style("opacity", 1);
 
     this.select(".x.axis").append("text")
         .style("opacity", 0)
@@ -132,29 +135,16 @@ hist.update_axes = function(scales, axes, options) {
     this.select(".x.axis").transition().duration(3000).call(xAxis);
     this.select(".y.axis").transition().duration(3000).call(yAxis);
 
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
+
     if (options.grid) {
-        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
-        if (d3.selectAll(".grid").empty()) {
-            this.append("g")
-                .classed("y grid", true)
-                .attr("transform", "translate(" + (padding - 5) + ",0)")
-                .call(yGrid)
-                .style("opacity", 0)
-                .transition()
-                .duration(3000)
-                .style("opacity", 1);
-        } else {
-            this.select(".x.grid").transition().duration(3000).style("opacity", 0);
-            this.select(".y.grid").transition().duration(3000).call(yGrid).style("opacity", 1);
-        }
-    } else if (!d3.selectAll(".grid").empty()) {
+        this.select(".x.grid").transition().duration(1500).style("opacity", 0);
+        this.select(".y.grid").transition().duration(1500).call(yGrid).style("opacity", 1);
+    } else {
         this.selectAll(".grid")
         .transition()
         .duration(1500)
-        .style("opacity", 0)
-        .transition()
-        .delay(1501)
-        .remove();
+        .style("opacity", 0);
     }
 
     if (xLabel.text() != axes.x.value) {
@@ -253,7 +243,7 @@ hist.add_data = function(scales, data, options) {
         .style("fill", "green")
         .style("opacity", 0.5);
 
-    for (i=0; i < results.length; i++) {
+    for (var i=0; i < results.length; i++) {
         bkgBars.data(results[i].output.background)
             .transition()
             .duration(1500)

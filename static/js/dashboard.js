@@ -253,6 +253,21 @@ module.controller("mainCtrl", function($scope, $http){
         $scope.updatePlots(plot);
     };
 
+    $scope.reloadData = function(plot) {
+        var myScope = $scope.plots[plot];
+        var svg = d3.select("svg#plot-"+plot);
+        var lib = libs[myScope.plot_type];
+        var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
+        svg.selectAll(".data")
+            .transition()
+            .duration(1500)
+            .style("opacity", 0)
+            .remove();
+        myScope.datasets_values.forEach(function(d) {
+           lib.add_data.call(svg, scales, d, myScope.options); 
+        });
+    };
+
     $scope.getKeys = function(obj) {
         return Object.keys(obj);
     };

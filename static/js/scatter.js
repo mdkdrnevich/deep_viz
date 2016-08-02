@@ -102,17 +102,22 @@ scatter.add_axes = function(scales, axes, options) {
         .attr("transform", "translate(" + (padding - 5) + ",0)")
         .call(yAxis);
 
+    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
+    this.append("g")
+        .classed("x grid", true)
+        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .call(xGrid)
+        .style("opacity", 0);
+    this.append("g")
+        .classed("y grid", true)
+        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .call(yGrid)
+        .style("opacity", 0);
+
     if (options.grid) {
-        var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
-        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
-        this.append("g")
-            .classed("x grid", true)
-            .attr("transform", "translate(0," + (h - padding + 5) + ")")
-            .call(xGrid);
-        this.append("g")
-            .classed("y grid", true)
-            .attr("transform", "translate(" + (padding - 5) + ",0)")
-            .call(yGrid);
+        this.select(".x.grid").transition().duration(1500).style("opacity", 1);
+        this.select(".y.grid").transition().duration(1500).style("opacity", 1);
     }
 
     // Label the axes
@@ -216,38 +221,17 @@ scatter.update_axes = function(scales, axes, options) {
     this.select(".x.axis").transition().duration(3000).call(xAxis);
     this.select(".y.axis").transition().duration(3000).call(yAxis);
 
+    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2*padding - 10, 0, 0).tickFormat("");
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
+
     if (options.grid) {
-        var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2*padding - 10, 0, 0).tickFormat("");
-        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
-        if (d3.selectAll(".grid").empty()) {
-            this.append("g")
-                .classed("x grid", true)
-                .attr("transform", "translate(0," + (h - padding + 5) + ")")
-                .call(xGrid)
-                .style("opacity", 0)
-                .transition()
-                .duration(3000)
-                .style("opacity", 1);
-            this.append("g")
-                .classed("y grid", true)
-                .attr("transform", "translate(" + (padding - 5) + ",0)")
-                .call(yGrid)
-                .style("opacity", 0)
-                .transition()
-                .duration(3000)
-                .style("opacity", 1);
-        } else {
-            this.select(".x.grid").transition().duration(3000).call(xGrid).style("opacity", 1);
-            this.select(".y.grid").transition().duration(3000).call(yGrid).style("opacity", 1);
-        }
-    } else if (!d3.selectAll(".grid").empty()) {
+        this.select(".x.grid").transition().duration(1500).call(xGrid).style("opacity", 1);
+        this.select(".y.grid").transition().duration(1500).call(yGrid).style("opacity", 1);
+    } else {
         this.selectAll(".grid")
         .transition()
         .duration(1500)
         .style("opacity", 0)
-        .transition()
-        .delay(1501)
-        .remove();
     }
 
     if (xLabel.text() != axes.x.value) {

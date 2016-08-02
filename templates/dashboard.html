@@ -112,12 +112,13 @@
             </button>
 
             <!-- Table Container -->
-            <div ng-repeat="plot in plots | orderBy:'num'" id="plot{a plot.num a}">
+            <div class="container-fluid" ng-repeat="plot in plots | orderBy:'num'" id="plot{a plot.num a}">
               <h2 class="sub-header">{a plot.name a}</h2>
 
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="dropdown">
+                <!-- Button Row -->
+                <div class="row form-inline">
+                    <div class="col-md-2 input-group">
+                        <div class="dropdown btn">
                             <button class="btn btn-default btn-blue dropdown-toggle" type="button" data-toggle="dropdown">
                                 <span class="fa fa-plus"></span> <b>Add Dataset</b><span class="caret"></span>
                             </button>
@@ -136,6 +137,12 @@
                     <div class="col-md-2 input-group">
                         <label class="btn-blue input-group-addon"><b>Title:</b></label>
                         <input class="form-control" type="text" ng-model="plot.name">
+                    </div>
+                    <div class="col-md-2 input-group pull-right">
+                        <button class="btn btn-default btn-blue pull-right" type="button"
+                                ng-click="reloadData(plot.num)">
+                            <span class="fa fa-refresh"></span> <b>Reload Data</b>
+                        </button>
                     </div>
                 </div>
 

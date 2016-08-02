@@ -1,5 +1,4 @@
 Fix utils.py to do error catching if certain fields are not applicable (finished cruve and matrix)
-Make a button for dynamically adding plots
 Make dropdown list drop up when it's too low
 Have a checkbox for each dataset and then a compare dropdown button (can only select two ds to compare)
 Add search bar to drop down using angular filter
@@ -8,7 +7,6 @@ Improve sidebar navigation
 Implement model structure graphs
 Add nicer data labels to data points
 Make dropdowns smooth
-Add grid option
 Allow user to select area to zoom in on
 Overlay checkbox to set opacity to 0.5
 Make a cache size to limit the amount of data stored in memory
@@ -17,6 +15,7 @@ Scale scatterplot circle radius by S/sqrt(B) value
 Improve table design layout (label plots better)
 Make whole svg removable so that table re-expands
 Add error catching with alerts
+Add heatmap for confusion matrix
 Gridlines are drawn over the data
 
 Strong color: #913aff
