@@ -56,6 +56,13 @@ function remove_axes() {
         .transition()
         .delay(1501)
         .remove();
+    this.selectAll(".grid")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .transition()
+        .delay(1501)
+        .remove();
     return this;
 }
 

@@ -82,7 +82,7 @@ scatter.get_scales = function(datasets, axes) {
 This section generates and updates axes
  */
 
-scatter.add_axes = function(scales, axes) {
+scatter.add_axes = function(scales, axes, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
@@ -94,13 +94,26 @@ scatter.add_axes = function(scales, axes) {
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
 
     this.append("g")
-        .attr("class", "x axis")
+        .classed("x axis", true)
         .attr("transform", "translate(0," + (h - padding + 5) + ")")
         .call(xAxis);
     this.append("g")
-        .attr("class", "y axis")
+        .classed("y axis", true)
         .attr("transform", "translate(" + (padding - 5) + ",0)")
         .call(yAxis);
+
+    if (options.grid) {
+        var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
+        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
+        this.append("g")
+            .classed("x grid", true)
+            .attr("transform", "translate(0," + (h - padding + 5) + ")")
+            .call(xGrid);
+        this.append("g")
+            .classed("y grid", true)
+            .attr("transform", "translate(" + (padding - 5) + ",0)")
+            .call(yGrid);
+    }
 
     // Label the axes
     this.select(".x.axis").append("text")
@@ -187,7 +200,7 @@ scatter.add_right_axis = function(scale, label) {
     return this;
 };
 
-scatter.update_axes = function(scales, axes) {
+scatter.update_axes = function(scales, axes, options) {
     var w = get_container_width(this);
     var h = this.attr("height");
     var padding = settings.padding;
@@ -202,6 +215,40 @@ scatter.update_axes = function(scales, axes) {
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
     this.select(".x.axis").transition().duration(3000).call(xAxis);
     this.select(".y.axis").transition().duration(3000).call(yAxis);
+
+    if (options.grid) {
+        var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2*padding - 10, 0, 0).tickFormat("");
+        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
+        if (d3.selectAll(".grid").empty()) {
+            this.append("g")
+                .classed("x grid", true)
+                .attr("transform", "translate(0," + (h - padding + 5) + ")")
+                .call(xGrid)
+                .style("opacity", 0)
+                .transition()
+                .duration(3000)
+                .style("opacity", 1);
+            this.append("g")
+                .classed("y grid", true)
+                .attr("transform", "translate(" + (padding - 5) + ",0)")
+                .call(yGrid)
+                .style("opacity", 0)
+                .transition()
+                .duration(3000)
+                .style("opacity", 1);
+        } else {
+            this.select(".x.grid").transition().duration(3000).call(xGrid).style("opacity", 1);
+            this.select(".y.grid").transition().duration(3000).call(yGrid).style("opacity", 1);
+        }
+    } else if (!d3.selectAll(".grid").empty()) {
+        this.selectAll(".grid")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .transition()
+        .delay(1501)
+        .remove();
+    }
 
     if (xLabel.text() != axes.x.value) {
         this.select(".x.label")
@@ -331,7 +378,7 @@ scatter.update_axes = function(scales, axes) {
 This section creates and updates scatterplot points
  */
 
-scatter.add_data = function(scales, data) {
+scatter.add_data = function(scales, data, options) {
     var h = this.attr("height");
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
@@ -372,7 +419,7 @@ scatter.add_data = function(scales, data) {
     return this;
 };
 
-scatter.update_data = function(scales, data) {
+scatter.update_data = function(scales, data, options) {
     var h = this.attr("height");
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];

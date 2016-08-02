@@ -29,3 +29,13 @@
     font-family: sans-serif;
     font-size: 11px;
 }
+
+.grid .tick {
+    fill: none;
+    stroke: #ccc;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    opacity: 0;
+}

@@ -57,6 +57,7 @@ module.controller("mainCtrl", function($scope, $http){
     $scope.plots[0].common_data = '';
     $scope.plots[0].num = 0;
     $scope.plots[0].name = 'Plot 1';
+    $scope.plots[0].options = {grid: false};
 
     $scope.addRow = function() {
         var ix = $scope.plots.push({}) - 1;
@@ -83,6 +84,7 @@ module.controller("mainCtrl", function($scope, $http){
         var num = $scope.plots[ix-1].num + 1;
         $scope.plots[ix].num = num;
         $scope.plots[ix].name = 'Plot '+(num+1);
+        $scope.plots[ix].options = {grid: false};
         var row = $scope.rows.push([0]) - 1;
         $scope.rows_keys.push(row);
     };
@@ -112,6 +114,7 @@ module.controller("mainCtrl", function($scope, $http){
         var num = $scope.plots[ix-1].num + 1;
         $scope.plots[ix].num = num;
         $scope.plots[ix].name = 'Plot '+(num+1);
+        $scope.plots[ix].options = {grid: false};
         var col = $scope.rows[row].push(+$scope.rows[row].slice(-1)+1) - 1;
     };
 
@@ -159,12 +162,12 @@ module.controller("mainCtrl", function($scope, $http){
             var lib = libs[myScope.plot_type];
             var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
             if (myScope._first_plot) {
-                lib.add_axes.call(svg, scales, myScope.axes[myScope.plot_type]);
-                lib.add_data.call(svg, scales, this_ds);
+                lib.add_axes.call(svg, scales, myScope.axes[myScope.plot_type], myScope.options);
+                lib.add_data.call(svg, scales, this_ds, myScope.options);
                 myScope._first_plot = false;
             }
             else {
-                lib.add_data.call(svg, scales, this_ds);
+                lib.add_data.call(svg, scales, this_ds, myScope.options);
                 $scope.updatePlots(plot);
             }
         });
@@ -196,7 +199,7 @@ module.controller("mainCtrl", function($scope, $http){
         var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
         var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
-        lib.update_data.call(svg, scales, dataset);
+        lib.update_data.call(svg, scales, dataset, myScope.options);
     };
 
     // Updates all of the plots
@@ -223,7 +226,7 @@ module.controller("mainCtrl", function($scope, $http){
             dataset.axes.y.value = myScope.axes[myScope.plot_type][y_scale].value;
         });
         var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
-        lib.update_axes.call(svg, scales, myScope.axes[myScope.plot_type]);
+        lib.update_axes.call(svg, scales, myScope.axes[myScope.plot_type], myScope.options);
 
         myScope.datasets_values.forEach(function (dataset) {
             $scope.updatePlot(plot, dataset);
@@ -241,7 +244,7 @@ module.controller("mainCtrl", function($scope, $http){
 
         myScope.datasets_values.forEach(function (data) {
             remove_data.call(svg, data);
-            lib.add_data.call(svg, scales, data);
+            lib.add_data.call(svg, scales, data, myScope.options);
         });
         myScope.valid_x_axes = $scope.getValidAxes(plot, 'x');
         myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');

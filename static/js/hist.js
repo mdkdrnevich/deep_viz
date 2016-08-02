@@ -53,7 +53,7 @@ data.experiment.output = {
 }
  */
 
-hist.add_axes = function(scales, data) {
+hist.add_axes = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
@@ -77,6 +77,19 @@ hist.add_axes = function(scales, data) {
         .attr("transform", "translate(" + (padding - 5) + ",0)")
         .call(yAxis);
 
+    if (options.grid) {
+        var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
+        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
+        this.append("g")
+            .classed("x grid", true)
+            .attr("transform", "translate(0," + (h - padding + 5) + ")")
+            .call(xGrid).style("opacity", 0);
+        this.append("g")
+            .classed("y grid", true)
+            .attr("transform", "translate(" + (padding - 5) + ",0)")
+            .call(yGrid);
+    }
+
     this.select(".x.axis").append("text")
         .style("opacity", 0)
         .transition()
@@ -97,11 +110,10 @@ hist.add_axes = function(scales, data) {
         .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
         .style("opacity", 1)
         .text("Number of Events");
-
     return this;
 };
 
-hist.update_axes = function(scales, axes) {
+hist.update_axes = function(scales, axes, options) {
     var w = get_container_width(this);
     var h = this.attr("height");
     var padding = settings.padding;
@@ -119,6 +131,31 @@ hist.update_axes = function(scales, axes) {
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
     this.select(".x.axis").transition().duration(3000).call(xAxis);
     this.select(".y.axis").transition().duration(3000).call(yAxis);
+
+    if (options.grid) {
+        var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
+        if (d3.selectAll(".grid").empty()) {
+            this.append("g")
+                .classed("y grid", true)
+                .attr("transform", "translate(" + (padding - 5) + ",0)")
+                .call(yGrid)
+                .style("opacity", 0)
+                .transition()
+                .duration(3000)
+                .style("opacity", 1);
+        } else {
+            this.select(".x.grid").transition().duration(3000).style("opacity", 0);
+            this.select(".y.grid").transition().duration(3000).call(yGrid).style("opacity", 1);
+        }
+    } else if (!d3.selectAll(".grid").empty()) {
+        this.selectAll(".grid")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .transition()
+        .delay(1501)
+        .remove();
+    }
 
     if (xLabel.text() != axes.x.value) {
         this.select(".x.label")
@@ -174,7 +211,7 @@ hist.update_axes = function(scales, axes) {
 This is where data is added
  */
 
-hist.add_data = function(scales, data) {
+hist.add_data = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
@@ -249,7 +286,7 @@ hist.add_data = function(scales, data) {
     return this;
 };
 
-hist.update_data = function(scales, data) {
+hist.update_data = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
