@@ -15,7 +15,11 @@ scatter.get_scales = function(datasets, axes) {
 
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            return r[axes.x.key];
+            if (r[axes.x.key]) {
+                return r[axes.x.key];
+            } else {
+                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.x.key]+"'";
+            }
         });
     });
     var x_min = d3.min(x_extents, function(d) {return d[0]});
@@ -23,19 +27,23 @@ scatter.get_scales = function(datasets, axes) {
 
     var y_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            return r[axes.y.key];
+            if (r[axes.y.key]) {
+                return r[axes.y.key];
+            } else {
+                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.y.key]+"'";
+            }
         });
     });
     var y_min = d3.min(y_extents, function(d) {return d[0]});
     var y_max = d3.max(y_extents, function(d) {return d[1]});
     
-    var radius_extents = datasets.map( function (data) {
+    /*var radius_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
             return r.s_b;
         });
     });
     var r_min = d3.min(radius_extents, function(d) {return d[0]});
-    var r_max = d3.max(radius_extents, function(d) {return d[1]});
+    var r_max = d3.max(radius_extents, function(d) {return d[1]});*/
 
     var xScale = d3.scale.linear()
         .domain([x_min, x_max])
@@ -43,16 +51,22 @@ scatter.get_scales = function(datasets, axes) {
     var yScale = d3.scale.linear()
         .domain([y_min, y_max])
         .range([h - padding, padding]);
+    /*
     var rScale = d3.scale.linear()
         .domain([r_min, r_max])
         .range([1, 4]);
+    */
 
-    var scales = {x: xScale, y: yScale, radius: rScale};
+    var scales = {x: xScale, y: yScale};//, radius: rScale};
 
     if (axes.top.key && axes.top.value) {
         var top_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
-                return r[axes.top.key];
+                if (r[axes.top.key]) {
+                    return r[axes.top.key];
+                } else {
+                    throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.top.key]+"'";
+                }
             });
         });
         var top_min = d3.min(top_extents, function(d) {return d[0]});
@@ -65,7 +79,11 @@ scatter.get_scales = function(datasets, axes) {
     if (axes.right.key && axes.right.value) {
         var right_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
-                return r[axes.right.key];
+                if (r[axes.right.key]) {
+                    return r[axes.right.key];
+                } else {
+                    throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.right.key]+"'";
+                }
             });
         });
         var right_min = d3.min(right_extents, function(d) {return d[0]});

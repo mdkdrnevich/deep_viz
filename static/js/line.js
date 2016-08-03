@@ -17,7 +17,11 @@ line.get_scales = function(datasets, axes) {
 
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            return r[axes.x.key];
+            if (r[axes.x.key]) {
+                return r[axes.x.key];
+            } else {
+                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.x.key]+"'";
+            }
         });
     });
     var x_min = d3.min(x_extents, function(d) {return d[0]});
@@ -25,7 +29,11 @@ line.get_scales = function(datasets, axes) {
 
     var y_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            return r[axes.y.key];
+            if (r[axes.y.key]) {
+                return r[axes.y.key];
+            } else {
+                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.y.key]+"'";
+            }
         });
     });
     var y_min = d3.min(y_extents, function(d) {return d[0]});
@@ -44,7 +52,11 @@ line.get_scales = function(datasets, axes) {
     if (axes.top.key && axes.top.value) {
         var top_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
-                return r[axes.top.key];
+                if (r[axes.top.key]) {
+                    return r[axes.top.key];
+                } else {
+                    throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.top.key]+"'";
+                }
             });
         });
         var top_min = d3.min(top_extents, function(d) {return d[0]});
@@ -57,7 +69,11 @@ line.get_scales = function(datasets, axes) {
     if (axes.right.key && axes.right.value) {
         var right_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
-                return r[axes.right.key];
+                if (r[axes.right.key]) {
+                    return r[axes.right.key];
+                } else {
+                    throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.right.key]+"'";
+                }
             });
         });
         var right_min = d3.min(right_extents, function(d) {return d[0]});

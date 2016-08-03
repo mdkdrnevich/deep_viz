@@ -1,5 +1,5 @@
 # Deep Viz
-A web app to visualize results from klannon/deep-learning.
+A web app to visualize results from [Deep Learning][deep learning].
 
 ![example](static/example_dv.png?raw=true "Example")
 

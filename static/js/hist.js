@@ -15,7 +15,7 @@ hist.get_scales = function(dataset, axes) {
         try {
             return d.experiment.results[0].output.background.length;
         } catch(err) {
-            return 0;
+            throw "Dataset '"+d.dataset+"' does not have attribute 'background'";
         }
     });
     dataset.forEach(function(e) {
