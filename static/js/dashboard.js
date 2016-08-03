@@ -27,7 +27,8 @@ var readableNames = {
 
 var libs = {
     scatter: scatter,
-    hist: hist
+    hist: hist,
+    line: line
 };
 
 module.controller("mainCtrl", function($scope, $http){
@@ -50,6 +51,10 @@ module.controller("mainCtrl", function($scope, $http){
                                       y: {key: 'Number of Events', value: 'Number of Events'},
                                       top: {key: '', value: ''},
                                       right: {key: '', value: ''}};
+    $scope.plots[0].axes.line = {x: {key: 'current_time', value: readableNames['current_time']},
+                                 y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                                 top: {key: '', value: ''},
+                                 right: {key: '', value: ''}};
     $scope.plots[0].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
     $scope.plots[0].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
     $scope.plots[0].plot_type = "scatter";
@@ -74,6 +79,10 @@ module.controller("mainCtrl", function($scope, $http){
                                          right: {key: '', value: ''}};
         $scope.plots[ix].axes.hist = {x: {key: 'Signal Prediction', value: 'Signal Prediction (%)'},
                                       y: {key: 'Number of Events', value: 'Number of Events'},
+                                      top: {key: '', value: ''},
+                                      right: {key: '', value: ''}};
+        $scope.plots[ix].axes.line = {x: {key: 'current_time', value: readableNames['current_time']},
+                                      y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
                                       top: {key: '', value: ''},
                                       right: {key: '', value: ''}};
         $scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
@@ -104,6 +113,10 @@ module.controller("mainCtrl", function($scope, $http){
                                          right: {key: '', value: ''}};
         $scope.plots[ix].axes.hist = {x: {key: 'Signal Prediction', value: 'Signal Prediction (%)'},
                                       y: {key: 'Number of Events', value: 'Number of Events'},
+                                      top: {key: '', value: ''},
+                                      right: {key: '', value: ''}};
+        $scope.plots[ix].axes.line = {x: {key: 'current_time', value: readableNames['current_time']},
+                                      y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
                                       top: {key: '', value: ''},
                                       right: {key: '', value: ''}};
         $scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
@@ -250,7 +263,6 @@ module.controller("mainCtrl", function($scope, $http){
         myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
         myScope.axes.selected = myScope.axes[myScope.plot_type];
         myScope.common_data = $scope.getCommonData(plot);
-        $scope.updatePlots(plot);
     };
 
     $scope.reloadData = function(plot) {
@@ -315,7 +327,7 @@ module.controller("mainCtrl", function($scope, $http){
     $scope.getCommonData = function(plot) {
         var myScope = $scope.plots[plot];
         var options = new Set();
-        if (myScope.plot_type == "scatter") {
+        if ((myScope.plot_type == "scatter") || (myScope.plot_type == "line")){
             var rval = [];
             myScope.datasets_values.forEach(function (entry) {
                 Object.keys(entry.experiment.results[0]).forEach(function (x) {

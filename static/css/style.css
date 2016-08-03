@@ -39,3 +39,8 @@
 .grid path {
     opacity: 0;
 }
+
+.line {
+  fill: none;
+  stroke-width: 1.5px;
+}

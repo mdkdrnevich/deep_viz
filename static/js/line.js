@@ -1,14 +1,16 @@
 /**
- * Created by Matt on 7/3/2016.
+ * Created by Matt on 8/2/2016.
  */
 
-var scatter = {};
+// Should be very similar to scatter.js
+
+var line = {};
 
 /*
 This section gets scales for data
  */
 
-scatter.get_scales = function(datasets, axes) {
+line.get_scales = function(datasets, axes) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
@@ -28,14 +30,7 @@ scatter.get_scales = function(datasets, axes) {
     });
     var y_min = d3.min(y_extents, function(d) {return d[0]});
     var y_max = d3.max(y_extents, function(d) {return d[1]});
-    
-    var radius_extents = datasets.map( function (data) {
-        return d3.extent(data.experiment.results, function(r) {
-            return r.s_b;
-        });
-    });
-    var r_min = d3.min(radius_extents, function(d) {return d[0]});
-    var r_max = d3.max(radius_extents, function(d) {return d[1]});
+
 
     var xScale = d3.scale.linear()
         .domain([x_min, x_max])
@@ -43,11 +38,8 @@ scatter.get_scales = function(datasets, axes) {
     var yScale = d3.scale.linear()
         .domain([y_min, y_max])
         .range([h - padding, padding]);
-    var rScale = d3.scale.linear()
-        .domain([r_min, r_max])
-        .range([1, 4]);
 
-    var scales = {x: xScale, y: yScale, radius: rScale};
+    var scales = {x: xScale, y: yScale};
 
     if (axes.top.key && axes.top.value) {
         var top_extents = datasets.map( function (data) {
@@ -82,7 +74,7 @@ scatter.get_scales = function(datasets, axes) {
 This section generates and updates axes
  */
 
-scatter.add_axes = function(scales, axes, options) {
+line.add_axes = function(scales, axes, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var padding = settings.padding;
@@ -150,7 +142,7 @@ scatter.add_axes = function(scales, axes, options) {
     return this;
 };
 
-scatter.add_top_axis = function(scale, label) {
+line.add_top_axis = function(scale, label) {
     var w = get_container_width(this);
     var padding = settings.padding;
 
@@ -177,7 +169,7 @@ scatter.add_top_axis = function(scale, label) {
     return this;
 };
 
-scatter.add_right_axis = function(scale, label) {
+line.add_right_axis = function(scale, label) {
     var w = get_container_width(this);
     var padding = settings.padding;
 
@@ -205,7 +197,7 @@ scatter.add_right_axis = function(scale, label) {
     return this;
 };
 
-scatter.update_axes = function(scales, axes, options) {
+line.update_axes = function(scales, axes, options) {
     var w = get_container_width(this);
     var h = this.attr("height");
     var padding = settings.padding;
@@ -230,7 +222,7 @@ scatter.update_axes = function(scales, axes, options) {
     } else {
         this.selectAll(".grid")
         .transition()
-        .duration(1500)
+        .duration(3000)
         .style("opacity", 0)
     }
 
@@ -358,101 +350,73 @@ scatter.update_axes = function(scales, axes, options) {
     return this;
 };
 
-/*
-This section creates and updates scatterplot points
- */
-
-scatter.add_data = function(scales, data, options) {
+line.add_data = function(scales, data, options) {
     var h = this.attr("height");
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
     var yScale = scales[data.axes.y.scale];
-    var rScale = scales.radius;
 
-    // Generate points on scatterplot
-    this.append("g")
-        .classed("data", true)
-        .classed("plot"+data.id, true)
-        .selectAll("circle")
-        .data(data.experiment.results)
-        .enter()
-        .append("svg:circle")
-        .attr("cx", padding)
-        .attr("cy", h - padding)
-        .attr("r", 0)
-        .transition()
-        .delay(function(d, i){
-            return i*800/data.experiment.results.length
-        })
-        .duration(3000)
-        .attr("cx", function (d) {
+    var path = d3.svg.line()
+        .x(function(d) {
             return xScale(d[data.axes.x.key])
         })
-        .attr("cy", function (d) {
+        .y(function(d) {
             return yScale(d[data.axes.y.key])
-        })
-        .attr("r", function (d) {
-            return 3;
-            //return rScale(d.s_b);
-        })
-        .attr("fill", data.color);
-    this.selectAll(".data.plot"+data.id+" circle")
-        .data(data.experiment.results)
-        .append("svg:title")
-        .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
+        });
+
+    function getSmoothInterpolation(d) {
+             var interpolate = d3.scale.linear()
+                 .domain([0,1])
+                 .range([1, d.length + 1]);
+
+             return function(t) {
+                 var flooredX = Math.floor(interpolate(t));
+                 var weight = interpolate(t) - flooredX;
+                 var interpolatedLine = d.slice(0, flooredX);
+
+                 if(flooredX > 0 && flooredX < d.length) {
+                     var dx = d[flooredX][data.axes.x.key] - d[flooredX-1][data.axes.x.key];
+                     var dy = d[flooredX][data.axes.y.key] - d[flooredX-1][data.axes.y.key];
+                     var ix = interpolatedLine.push({}) - 1;
+                     interpolatedLine[ix][data.axes.x.key] = d[flooredX-1][data.axes.x.key] + (dx * weight);
+                     interpolatedLine[ix][data.axes.y.key] = d[flooredX-1][data.axes.y.key] + (dy * weight);
+                     }
+                 return path(interpolatedLine);
+                 }
+         }
+
+    this.append("path")
+        .datum(data.experiment.results)
+        .classed("data", true)
+        .classed("plot"+data.id, true)
+        .classed("line", true)
+        .style("stroke", data.color)
+        .transition()
+        .duration(3000)
+        .attrTween('d', getSmoothInterpolation);
+
     return this;
 };
 
-scatter.update_data = function(scales, data, options) {
+line.update_data = function(scales, data, options) {
     var h = this.attr("height");
     var padding = settings.padding;
     var xScale = scales[data.axes.x.scale];
     var yScale = scales[data.axes.y.scale];
-    var rScale = scales.radius;
 
-    var circles = this.selectAll(".data.plot"+data.id+" circle").data(data.experiment.results);
-    circles.exit()
-        .transition()
-        .duration(1500)
-        .style("opacity", 0)
-        .remove();
-    circles.transition()
-        .duration(3000)
-        .attr("cx", function (d) {
+    var new_path = d3.svg.line()
+        .x(function(d) {
             return xScale(d[data.axes.x.key])
         })
-        .attr("cy", function (d) {
+        .y(function(d) {
             return yScale(d[data.axes.y.key])
-        })
-        .attr("r", function (d) {
-            return 3;
-            //return rScale(d.s_b);
-        })
-        .attr("fill", data.color);
-    circles.enter()
-        .append("circle")
-        .attr("cx", padding)
-        .attr("cy", h - padding)
-        .attr("r", 0)
-        .transition()
-        .delay(function(d, i){
-            return i*800/data.experiment.results.length
-        })
-        .duration(3000)
-        .attr("cx", function (d) {
-            return xScale(d[data.axes.x.key])
-        })
-        .attr("cy", function (d) {
-            return yScale(d[data.axes.y.key])
-        })
-        .attr("r", function (d) {
-            return 3;
-            //return rScale(d.s_b);
-        })
-        .attr("fill", data.color);
+        });
 
-    this.selectAll(".data.plot"+data.id+" circle").select("title")
-        .data(data.experiment.results)
-        .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
+    var path = this.select(".data.plot"+data.id+".line").datum(data.experiment.results);
+    path.transition()
+        .duration(3000)
+        .attr('d', new_path)
+        .style("stroke", data.color);
+
     return this;
 };

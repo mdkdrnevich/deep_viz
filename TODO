@@ -1,6 +1,6 @@
 Fix utils.py to do error catching if certain fields are not applicable (finished cruve and matrix)
 Make dropdown list drop up when it's too low
-Have a checkbox for each dataset and then a compare dropdown button (can only select two ds to compare)
+Have a checkbox for each dataset and then a compare dropdown button (can only select two ds to compare and one statistic)
 Add search bar to drop down using angular filter
 Add show/hide buttons for both plots and individual graphs
 Improve sidebar navigation

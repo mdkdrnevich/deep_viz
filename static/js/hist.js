@@ -138,8 +138,8 @@ hist.update_axes = function(scales, axes, options) {
     var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
 
     if (options.grid) {
-        this.select(".x.grid").transition().duration(1500).style("opacity", 0);
-        this.select(".y.grid").transition().duration(1500).call(yGrid).style("opacity", 1);
+        this.select(".x.grid").transition().duration(3000).style("opacity", 0);
+        this.select(".y.grid").transition().duration(3000).call(yGrid).style("opacity", 1);
     } else {
         this.selectAll(".grid")
         .transition()
