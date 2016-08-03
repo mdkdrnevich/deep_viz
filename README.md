@@ -1,7 +1,7 @@
 # Deep Viz
 A web app to visualize results from klannon/deep-learning.
 
-![example](https://github.com/mdkdrnevich/deep_viz/tree/master/static/example_dv.png)
+![example](static/example_dv.png?raw=true "Example")
 
 To run this app just run `python app.py`.
 
