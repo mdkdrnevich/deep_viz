@@ -412,31 +412,10 @@ line.update_data = function(scales, data, options) {
             return yScale(d[data.axes.y.key])
         });
 
-    function getSmoothInterpolation(d) {
-             var interpolate = d3.scale.linear()
-                 .domain([0,1])
-                 .range([1, d.length + 1]);
-
-             return function(t) {
-                 var flooredX = Math.floor(interpolate(t));
-                 var weight = interpolate(t) - flooredX;
-                 var interpolatedLine = d.slice(0, flooredX);
-
-                 if(flooredX > 0 && flooredX < d.length) {
-                     var dx = d[flooredX][data.axes.x.key] - d[flooredX-1][data.axes.x.key];
-                     var dy = d[flooredX][data.axes.y.key] - d[flooredX-1][data.axes.y.key];
-                     var ix = interpolatedLine.push({}) - 1;
-                     interpolatedLine[ix][data.axes.x.key] = d[flooredX-1][data.axes.x.key] + (dx * weight);
-                     interpolatedLine[ix][data.axes.y.key] = d[flooredX-1][data.axes.y.key] + (dy * weight);
-                     }
-                 return new_path(interpolatedLine);
-                 }
-         }
-
     var path = this.select(".data.plot"+data.id+".line").datum(data.experiment.results);
     path.transition()
         .duration(3000)
-        .attrTween('d', getSmoothInterpolation)
+        .attr('d', new_path)
         .style("stroke", data.color);
 
     return this;

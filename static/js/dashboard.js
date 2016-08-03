@@ -181,7 +181,10 @@ module.controller("mainCtrl", function($scope, $http){
             }
             else {
                 lib.add_data.call(svg, scales, this_ds, myScope.options);
-                $scope.updatePlots(plot);
+                $scope.updatePlots(plot, true);
+                myScope.datasets_values.slice(0, -1).forEach(function (dataset) {
+                    $scope.updatePlot(plot, dataset);
+                });
             }
         });
     };
@@ -216,7 +219,7 @@ module.controller("mainCtrl", function($scope, $http){
     };
 
     // Updates all of the plots
-    $scope.updatePlots = function(plot) {
+    $scope.updatePlots = function(plot, no_data) {
         var myScope = $scope.plots[plot];
         var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
@@ -241,9 +244,11 @@ module.controller("mainCtrl", function($scope, $http){
         var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
         lib.update_axes.call(svg, scales, myScope.axes[myScope.plot_type], myScope.options);
 
-        myScope.datasets_values.forEach(function (dataset) {
-            $scope.updatePlot(plot, dataset);
-        });
+        if (!no_data) {
+            myScope.datasets_values.forEach(function (dataset) {
+                $scope.updatePlot(plot, dataset);
+            });
+        }
         myScope.valid_x_axes = $scope.getValidAxes(plot, 'x');
         myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
     };
@@ -263,7 +268,7 @@ module.controller("mainCtrl", function($scope, $http){
         myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
         myScope.axes.selected = myScope.axes[myScope.plot_type];
         myScope.common_data = $scope.getCommonData(plot);
-        $scope.updatePlots(plot);
+        $scope.updatePlots(plot, true);
     };
 
     $scope.reloadData = function(plot) {
