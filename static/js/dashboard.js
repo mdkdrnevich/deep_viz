@@ -258,17 +258,18 @@ module.controller("mainCtrl", function($scope, $http){
         var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
 
-        var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
-
-        myScope.datasets_values.forEach(function (data) {
-            remove_data.call(svg, data);
-            lib.add_data.call(svg, scales, data, myScope.options);
-        });
         myScope.valid_x_axes = $scope.getValidAxes(plot, 'x');
         myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
         myScope.axes.selected = myScope.axes[myScope.plot_type];
         myScope.common_data = $scope.getCommonData(plot);
+
+        var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
+
         $scope.updatePlots(plot, true);
+        myScope.datasets_values.forEach(function (data) {
+            remove_data.call(svg, data);
+            lib.add_data.call(svg, scales, data, myScope.options);
+        });
     };
 
     $scope.reloadData = function(plot) {
