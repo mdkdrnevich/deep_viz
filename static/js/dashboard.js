@@ -263,6 +263,7 @@ module.controller("mainCtrl", function($scope, $http){
         myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
         myScope.axes.selected = myScope.axes[myScope.plot_type];
         myScope.common_data = $scope.getCommonData(plot);
+        $scope.updatePlots(plot);
     };
 
     $scope.reloadData = function(plot) {
