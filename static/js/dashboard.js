@@ -28,7 +28,8 @@ var readableNames = {
 var libs = {
     scatter: scatter,
     hist: hist,
-    line: line
+    line: line,
+    matrix: matrix
 };
 
 function addPlot(scope) {
@@ -52,6 +53,10 @@ function addPlot(scope) {
                                   y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
                                   top: {key: '', value: ''},
                                   right: {key: '', value: ''}};
+    scope.plots[ix].axes.matrix = {x: {key: 'Predicted', value: 'Predicted'},
+                                   y: {key: 'Real', value: 'Real'},
+                                   top: {key: '', value: ''},
+                                   right: {key: '', value: ''}};
     scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
     scope.plots[ix].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
     scope.plots[ix].plot_type = "scatter";

@@ -14,7 +14,6 @@ Plot resize argument in %?
 Scale scatterplot circle radius by S/sqrt(B) value
 Improve table design layout (label plots better)
 Make whole svg removable so that table re-expands
-Add heatmap for confusion matrix
-Gridlines are drawn over the data
+heatmap better legend placement (dependent on size/shape)
 
 Strong color: #913aff

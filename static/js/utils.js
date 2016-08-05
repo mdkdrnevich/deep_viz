@@ -7,7 +7,10 @@ var max_height = 450;
 var settings = {
     h: max_height,
     w: max_width,
-    padding: 60
+    margins: {left: 65,
+              right: 60,
+              top: 60,
+              bottom: 60}
 };
 
 var numFormat = new Intl.NumberFormat("en-US", {maximumFractionDigits: 3});
@@ -27,11 +30,6 @@ function add_graph(element, num) {
     svg.attr("width", get_container_width(svg));
     return svg;
 }
-
-/*
-This section provides general update functions
- */
-
 
 /*
 This section removes elements from the graphs and DOM
@@ -57,6 +55,13 @@ function remove_axes() {
         .delay(1501)
         .remove();
     this.selectAll(".grid")
+        .transition()
+        .duration(1500)
+        .style("opacity", 0)
+        .transition()
+        .delay(1501)
+        .remove();
+    this.selectAll(".legend")
         .transition()
         .duration(1500)
         .style("opacity", 0)

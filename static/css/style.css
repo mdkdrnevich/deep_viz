@@ -27,7 +27,7 @@
 
 .axis text {
     font-family: sans-serif;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .grid .tick {
@@ -43,4 +43,9 @@
 .line {
   fill: none;
   stroke-width: 1.5px;
+}
+
+rect.bordered {
+        stroke: #E6E6E6;
+        stroke-width:2px;
 }

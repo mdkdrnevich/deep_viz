@@ -11,7 +11,7 @@ This section gets scales for data
 scatter.get_scales = function(datasets, axes) {
     var h = this.attr("height");
     var w = get_container_width(this);
-    var padding = settings.padding;
+    var margins = settings.margins;
 
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
@@ -47,10 +47,10 @@ scatter.get_scales = function(datasets, axes) {
 
     var xScale = d3.scale.linear()
         .domain([x_min, x_max])
-        .range([padding, w - padding]);
+        .range([margins.left, w - margins.right]);
     var yScale = d3.scale.linear()
         .domain([y_min, y_max])
-        .range([h - padding, padding]);
+        .range([h - margins.bottom, margins.top]);
     /*
     var rScale = d3.scale.linear()
         .domain([r_min, r_max])
@@ -74,7 +74,7 @@ scatter.get_scales = function(datasets, axes) {
 
         scales.top = d3.scale.linear()
                                     .domain([top_min, top_max])
-                                    .range([padding, w - padding]);
+                                    .range([margins.left, w - margins.right]);
     }
     if (axes.right.key && axes.right.value) {
         var right_extents = datasets.map( function (data) {
@@ -91,7 +91,7 @@ scatter.get_scales = function(datasets, axes) {
 
         scales.right = d3.scale.linear()
                                     .domain([right_min, right_max])
-                                    .range([h - padding, padding]);
+                                    .range([h - margins.bottom, margins.top]);
     }
     return scales;
 };
@@ -103,7 +103,7 @@ This section generates and updates axes
 scatter.add_axes = function(scales, axes, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales.x;
     var yScale = scales.y;
 
@@ -113,23 +113,23 @@ scatter.add_axes = function(scales, axes, options) {
 
     this.append("g")
         .classed("x axis", true)
-        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .attr("transform", "translate(0," + (h - margins.bottom + 5) + ")")
         .call(xAxis);
     this.append("g")
         .classed("y axis", true)
-        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .attr("transform", "translate(" + (margins.left - 5) + ",0)")
         .call(yAxis);
 
-    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
-    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
+    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + margins.top + margins.bottom - 10, 0, 0).tickFormat("");
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + margins.right + margins.left - 10, 0, 0).tickFormat("");
     this.append("g")
         .classed("x grid", true)
-        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .attr("transform", "translate(0," + (h - margins.bottom + 5) + ")")
         .call(xGrid)
         .style("opacity", 0);
     this.append("g")
         .classed("y grid", true)
-        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .attr("transform", "translate(" + (margins.left - 5) + ",0)")
         .call(yGrid)
         .style("opacity", 0);
 
@@ -144,8 +144,9 @@ scatter.add_axes = function(scales, axes, options) {
         .transition()
         .duration(1500)
         .attr("class", "x label")
-        .attr("x", (w - 2 * padding) / 2)
-        .attr("y", 30)
+        .attr("x", (w - margins.left - margins.right) / 2)
+        .attr("y", 35)
+        .attr("text-anchor", "middle")
         .style("opacity", 1)
         .text(axes.x.value);
     this.select(".y.axis").append("text")
@@ -153,9 +154,10 @@ scatter.add_axes = function(scales, axes, options) {
         .transition()
         .duration(1500)
         .attr("class", "y label")
-        .attr("x", -40)
-        .attr("y", 10 + (h - 2 * padding) / 2)
-        .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
+        .attr("x", -45)
+        .attr("y", 10 + (h - margins.left - margins.right) / 2)
+        .attr("transform", "rotate(-90, -45," + (10 + (h - margins.left - margins.right) / 2) + ")")
+        .attr("text-anchor", "middle")
         .style("opacity", 1)
         .text(axes.y.value);
 
@@ -171,13 +173,14 @@ scatter.add_axes = function(scales, axes, options) {
 scatter.add_top_axis = function(scale, label) {
     var w = get_container_width(this);
     var padding = settings.padding;
+    var margins = settings.margins;
 
     // Generate Axis
     var axis = d3.svg.axis().scale(scale).orient("top").ticks(15);
 
     this.append("g")
         .attr("class", "top axis")
-        .attr("transform", "translate(0," + (padding - 5) + ")")
+        .attr("transform", "translate(0," + (margins.top - 5) + ")")
         .transition()
         .duration(3000)
         .call(axis);
@@ -188,8 +191,9 @@ scatter.add_top_axis = function(scale, label) {
         .transition()
         .duration(1500)
         .attr("class", "top label")
-        .attr("x", (w - 2 * padding) / 2)
-        .attr("y", -30)
+        .attr("x", (w - margins.left - margins.right) / 2)
+        .attr("y", -35)
+        .attr("text-anchor", "middle")
         .style("opacity", 1)
         .text(label);
     return this;
@@ -198,13 +202,14 @@ scatter.add_top_axis = function(scale, label) {
 scatter.add_right_axis = function(scale, label) {
     var w = get_container_width(this);
     var padding = settings.padding;
+    var margins = settings.margins;
 
     // Generate Axis
     var axis = d3.svg.axis().scale(scale).orient("right").ticks(10);
 
     this.append("g")
         .attr("class", "right axis")
-        .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+        .attr("transform", "translate(" + (w - margins.right + 5) + ",0)")
         .transition()
         .duration(3000)
         .call(axis);
@@ -215,9 +220,10 @@ scatter.add_right_axis = function(scale, label) {
         .transition()
         .duration(1500)
         .attr("class", "right label")
-        .attr("x", 40)
-        .attr("y", padding + 35)
-        .attr("transform", "rotate(90, 40," + (padding + 35) + ")")
+        .attr("x", 45)
+        .attr("y", margins.top + 35)
+        .attr("transform", "rotate(90, 45," + (margins.top + 35) + ")")
+        .attr("text-anchor", "middle")
         .style("opacity", 1)
         .text(label);
     return this;
@@ -226,7 +232,7 @@ scatter.add_right_axis = function(scale, label) {
 scatter.update_axes = function(scales, axes, options) {
     var w = get_container_width(this);
     var h = this.attr("height");
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales.x;
     var yScale = scales.y;
     var xLabel = this.select(".x.label");
@@ -236,11 +242,14 @@ scatter.update_axes = function(scales, axes, options) {
 
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
-    this.select(".x.axis").transition().duration(3000).call(xAxis);
-    this.select(".y.axis").transition().duration(3000).call(yAxis);
+    this.select(".x.axis").transition().duration(3000).call(xAxis).select(".domain").style("opacity", 1);
+    this.select(".y.axis").transition().duration(3000).call(yAxis).select(".domain").style("opacity", 1);
+    
+    this.selectAll(".axis .targets").transition().duration(1500).style("opacity", 0);
+    this.selectAll(".legend").transition().duration(1500).style("opacity", 0);
 
-    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2*padding - 10, 0, 0).tickFormat("");
-    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
+    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + margins.top + margins.bottom - 10, 0, 0).tickFormat("");
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + margins.left + margins.right - 10, 0, 0).tickFormat("");
 
     if (options.grid) {
         this.select(".x.grid").transition().duration(3000).call(xGrid).style("opacity", 1);
@@ -256,7 +265,8 @@ scatter.update_axes = function(scales, axes, options) {
         this.select(".x.label")
             .transition()
             .duration(1000)
-            .attr("x", (w - 2 * padding) / 2)
+            .attr("x", (w - margins.left - margins.right) / 2)
+            .attr("y", 35)
             .transition()
             .duration(500)
             .delay(1000)
@@ -273,12 +283,19 @@ scatter.update_axes = function(scales, axes, options) {
         this.select(".x.label")
             .transition()
             .duration(3000)
-            .attr("x", (w - 2 * padding) / 2)
+            .attr("x", (w - margins.left - margins.right) / 2)
+            .attr("y", 35)
     }
     if (yLabel.text() != axes.y.value) {
         this.select(".y.label")
             .transition()
-            .duration(1500)
+            .duration(1000)
+            .attr("x", -45)
+            .attr("y", 10 + (h - margins.top - margins.bottom) / 2)
+            .attr("transform", "rotate(-90, -45," + (10 + (h - margins.top - margins.bottom) / 2) + ")")
+            .transition()
+            .duration(500)
+            .delay(1000)
             .style("opacity", 0)
             .transition()
             .duration(1500)
@@ -287,17 +304,14 @@ scatter.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .style("opacity", 1)
-            .transition()
-            .duration(3000)
-            .attr("y", 10 + (h - 2 * padding) / 2)
-            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")");
+            .style("opacity", 1);
     } else {
         this.select(".y.label")
             .transition()
             .duration(3000)
-            .attr("y", 10 + (h - 2 * padding) / 2)
-            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
+            .attr("x", -45)
+            .attr("y", 10 + (h - margins.top - margins.bottom) / 2)
+            .attr("transform", "rotate(-90, -45," + (10 + (h - margins.top - margins.bottom) / 2) + ")")
     }
 
     var topAxis, rightAxis;
@@ -312,7 +326,7 @@ scatter.update_axes = function(scales, axes, options) {
         this.select(".top.label")
             .transition()
             .duration(1000)
-            .attr("x", (w - 2 * padding) / 2)
+            .attr("x", (w - margins.left - margins.right) / 2)
             .transition()
             .duration(500)
             .delay(1000)
@@ -331,7 +345,7 @@ scatter.update_axes = function(scales, axes, options) {
         this.select(".top.label")
             .transition()
             .duration(3000)
-            .attr("x", (w - 2 * padding) / 2)
+            .attr("x", (w - margins.left - margins.right) / 2)
     }
 
     if (rightLabel.empty() && axes.right.value) {
@@ -341,14 +355,14 @@ scatter.update_axes = function(scales, axes, options) {
     } else if (!rightLabel.empty() && (rightLabel.text() != axes.right.value)) {
         rightAxis = d3.svg.axis().scale(scales.right).orient("right").ticks(15);
         this.select(".right.axis").transition().duration(3000)
-            .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+            .attr("transform", "translate(" + (w - margins.right + 5) + ",0)")
             .call(rightAxis);
         this.select(".right.label")
             .transition()
             .duration(1000)
-            .attr("x", 40)
-            .attr("y", padding + 35)
-            .attr("transform", "rotate(90, 40," + (padding + 35) + ")")
+            .attr("x", 45)
+            .attr("y", margins.top + 35)
+            .attr("transform", "rotate(90, 40," + (margins.top + 35) + ")")
             .transition()
             .duration(500)
             .delay(1000)
@@ -364,14 +378,14 @@ scatter.update_axes = function(scales, axes, options) {
     } else if (!rightLabel.empty() && (rightLabel.text() == axes.right.value)) {
         rightAxis = d3.svg.axis().scale(scales.right).orient("right").ticks(15);
         this.select(".right.axis").transition().duration(3000)
-            .attr("transform", "translate(" + (w - padding + 5) + ",0)")
+            .attr("transform", "translate(" + (w - margins.right + 5) + ",0)")
             .call(rightAxis);
         this.select(".right.label")
             .transition()
             .duration(3000)
-            .attr("x", 40)
-            .attr("y", padding + 35)
-            .attr("transform", "rotate(90, 40," + (padding + 35) + ")")
+            .attr("x", 45)
+            .attr("y", margins.top + 35)
+            .attr("transform", "rotate(90, 40," + (margins.top + 35) + ")")
     }
     return this;
 };
@@ -382,7 +396,7 @@ This section creates and updates scatterplot points
 
 scatter.add_data = function(scales, data, options) {
     var h = this.attr("height");
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales[data.axes.x.scale];
     var yScale = scales[data.axes.y.scale];
     var rScale = scales.radius;
@@ -395,8 +409,8 @@ scatter.add_data = function(scales, data, options) {
         .data(data.experiment.results)
         .enter()
         .append("svg:circle")
-        .attr("cx", padding)
-        .attr("cy", h - padding)
+        .attr("cx", margins.left)
+        .attr("cy", h - margins.bottom)
         .attr("r", 0)
         .transition()
         .delay(function(d, i){

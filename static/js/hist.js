@@ -9,7 +9,7 @@ var hist = {};
 hist.get_scales = function(dataset, axes) {
     var h = this.attr("height");
     var w = get_container_width(this);
-    var padding = settings.padding;
+    var margins = settings.margins;
 
     var nbins = d3.max(dataset, function(d) {
         try {
@@ -36,8 +36,8 @@ hist.get_scales = function(dataset, axes) {
         ticks.push(i/nbins);
     }
     
-    var xScale = d3.scale.ordinal().domain(ticks).rangeRoundBands([padding, w - padding]);
-    var yScale = d3.scale.linear().domain([0, fqMax]).range([h-padding, padding]);
+    var xScale = d3.scale.ordinal().domain(ticks).rangeRoundBands([margins.left, w - margins.right]);
+    var yScale = d3.scale.linear().domain([0, fqMax]).range([h-margins.bottom, margins.top]);
     return {x: xScale, y: yScale};
 };
 
@@ -56,7 +56,7 @@ data.experiment.output = {
 hist.add_axes = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales.x;
     var yScale = scales.y;
 
@@ -70,23 +70,23 @@ hist.add_axes = function(scales, data, options) {
 
     this.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .attr("transform", "translate(0," + (h - margins.bottom + 5) + ")")
         .call(xAxis);
     this.append("g")
         .attr("class", "y axis")
-        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .attr("transform", "translate(" + (margins.left - 5) + ",0)")
         .call(yAxis);
 
-    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + 2 * padding - 10, 0, 0).tickFormat("");
-    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2 * padding - 10, 0, 0).tickFormat("");
+    var xGrid = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-h + margins.top + margins.bottom - 10, 0, 0).tickFormat("");
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + margins.left + margins.right - 10, 0, 0).tickFormat("");
     this.append("g")
         .classed("x grid", true)
-        .attr("transform", "translate(0," + (h - padding + 5) + ")")
+        .attr("transform", "translate(0," + (h - margins.bottom + 5) + ")")
         .call(xGrid)
         .style("opacity", 0);
     this.append("g")
         .classed("y grid", true)
-        .attr("transform", "translate(" + (padding - 5) + ",0)")
+        .attr("transform", "translate(" + (margins.left - 5) + ",0)")
         .call(yGrid)
         .style("opacity", 0);
 
@@ -98,8 +98,8 @@ hist.add_axes = function(scales, data, options) {
         .transition()
         .duration(1500)
         .attr("class", "x label")
-        .attr("x", (w - 2 * padding) / 2)
-        .attr("y", 30)
+        .attr("x", (w - margins.left - margins.right) / 2)
+        .attr("y", 35)
         .style("opacity", 1)
         .text("Signal Prediction (%)");
 
@@ -108,9 +108,9 @@ hist.add_axes = function(scales, data, options) {
         .transition()
         .duration(1500)
         .attr("class", "y label")
-        .attr("x", -40)
-        .attr("y", 10 + (h - 2 * padding) / 2)
-        .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
+        .attr("x", -45)
+        .attr("y", 10 + (h - margins.top - margins.bottom) / 2)
+        .attr("transform", "rotate(-90, -45," + (10 + (h - margins.bottom - margins.top) / 2) + ")")
         .style("opacity", 1)
         .text("Number of Events");
     return this;
@@ -119,7 +119,7 @@ hist.add_axes = function(scales, data, options) {
 hist.update_axes = function(scales, axes, options) {
     var w = get_container_width(this);
     var h = this.attr("height");
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales.x;
     var yScale = scales.y;
     var xLabel = this.select(".x.label");
@@ -132,10 +132,13 @@ hist.update_axes = function(scales, axes, options) {
     // Axes
     var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickValues(tickVals);
     var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
-    this.select(".x.axis").transition().duration(3000).call(xAxis);
-    this.select(".y.axis").transition().duration(3000).call(yAxis);
+    this.select(".x.axis").transition().duration(3000).call(xAxis).select(".domain").style("opacity", 1);
+    this.select(".y.axis").transition().duration(3000).call(yAxis).select(".domain").style("opacity", 1);
 
-    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + 2*padding - 10, 0, 0).tickFormat("");
+    this.selectAll(".axis .targets").transition().duration(1500).style("opacity", 0);
+    this.selectAll(".legend").transition().duration(1500).style("opacity", 0);
+
+    var yGrid = d3.svg.axis().scale(yScale).orient("left").tickSize(-w + margins.left + margins.right - 10, 0, 0).tickFormat("");
 
     if (options.grid) {
         this.select(".x.grid").transition().duration(3000).style("opacity", 0);
@@ -151,7 +154,8 @@ hist.update_axes = function(scales, axes, options) {
         this.select(".x.label")
             .transition()
             .duration(1000)
-            .attr("x", (w - 2 * padding) / 2)
+            .attr("x", (w - margins.left - margins.right) / 2)
+            .attr("y", 35)
             .transition()
             .duration(500)
             .delay(1000)
@@ -168,12 +172,19 @@ hist.update_axes = function(scales, axes, options) {
         this.select(".x.label")
             .transition()
             .duration(3000)
-            .attr("x", (w - 2 * padding) / 2)
+            .attr("x", (w - margins.right - margins.left) / 2)
+            .attr("y", 35)
     }
     if (yLabel.text() != axes.y.value) {
         this.select(".y.label")
             .transition()
-            .duration(1500)
+            .duration(1000)
+            .attr("x", -45)
+            .attr("y", 10 + (h - margins.top - margins.bottom) / 2)
+            .attr("transform", "rotate(-90, -45," + (10 + (h - margins.top - margins.bottom) / 2) + ")")
+            .transition()
+            .duration(500)
+            .delay(1000)
             .style("opacity", 0)
             .transition()
             .duration(1500)
@@ -182,17 +193,14 @@ hist.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .style("opacity", 1)
-            .transition()
-            .duration(3000)
-            .attr("y", 10 + (h - 2 * padding) / 2)
-            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")");
+            .style("opacity", 1);
     } else {
         this.select(".y.label")
             .transition()
             .duration(3000)
-            .attr("y", 10 + (h - 2 * padding) / 2)
-            .attr("transform", "rotate(-90, -40," + (10 + (h - 2 * padding) / 2) + ")")
+            .attr("x", -45)
+            .attr("y", 10 + (h - margins.top - margins.bottom) / 2)
+            .attr("transform", "rotate(-90, -45," + (10 + (h - margins.top - margins.bottom) / 2) + ")")
     }
     return this;
 };
@@ -204,7 +212,7 @@ This is where data is added
 hist.add_data = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales.x;
     var yScale = scales.y;
     var results = data.experiment.results;
@@ -220,8 +228,8 @@ hist.add_data = function(scales, data, options) {
         .attr("x", function(d, i) {
             return xScale(i/data.nbins) + xScale.rangeBand()/2;
         })
-        .attr("y", h-padding)
-        .attr("width", (w - 2*padding)/data.nbins)
+        .attr("y", h-margins.bottom)
+        .attr("width", (w - margins.right - margins.left)/data.nbins)
         .attr("height", 0)
         .style("fill", "blue")
         .style("opacity", 0.5);
@@ -237,8 +245,8 @@ hist.add_data = function(scales, data, options) {
         .attr("x", function(d, i) {
             return xScale(i/data.nbins) + xScale.rangeBand()/2;
         })
-        .attr("y", h-padding)
-        .attr("width", (w - 2*padding)/data.nbins)
+        .attr("y", h-margins.bottom)
+        .attr("width", (w - margins.left - margins.right)/data.nbins)
         .attr("height", 0)
         .style("fill", "green")
         .style("opacity", 0.5);
@@ -254,9 +262,9 @@ hist.add_data = function(scales, data, options) {
             .attr("y", function(d) {
                 return yScale(d);
             })
-            .attr("width", (w - 2*padding)/data.nbins)
+            .attr("width", (w - margins.left - margins.right)/data.nbins)
             .attr("height", function(d) {
-                return h - padding - yScale(d);
+                return h - margins.bottom - yScale(d);
             });
         sigBars.data(results[i].output.signal)
             .transition()
@@ -268,9 +276,9 @@ hist.add_data = function(scales, data, options) {
             .attr("y", function(d) {
                 return yScale(d);
             })
-            .attr("width", (w - 2*padding)/data.nbins)
+            .attr("width", (w - margins.left - margins.right)/data.nbins)
             .attr("height", function(d) {
-                return h - padding - yScale(d);
+                return h - margins.bottom - yScale(d);
             })
     }
     return this;
@@ -279,7 +287,7 @@ hist.add_data = function(scales, data, options) {
 hist.update_data = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
-    var padding = settings.padding;
+    var margins = settings.margins;
     var xScale = scales[data.axes.x.scale];
     var yScale = scales[data.axes.y.scale];
     var results = data.experiment.results;
@@ -294,9 +302,9 @@ hist.update_data = function(scales, data, options) {
         .attr("y", function(d) {
             return yScale(d);
         })
-        .attr("width", (w - 2*padding)/data.nbins)
+        .attr("width", (w - margins.left - margins.right)/data.nbins)
         .attr("height", function(d) {
-            return h - padding - yScale(d);
+            return h - margins.bottom - yScale(d);
         });
 
     this.selectAll(".data.plot"+data.id+".sig rect")
@@ -309,9 +317,9 @@ hist.update_data = function(scales, data, options) {
         .attr("y", function(d) {
             return yScale(d);
         })
-        .attr("width", (w - 2*padding)/data.nbins)
+        .attr("width", (w - margins.left - margins.right)/data.nbins)
         .attr("height", function(d) {
-            return h - padding - yScale(d);
+            return h - margins.bottom - yScale(d);
         });
 
     /*this.selectAll(".data.plot"+data.id+" rect").select("title")
