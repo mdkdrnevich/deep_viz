@@ -14,6 +14,8 @@
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CSS -->
     <link href="../static/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Bootstrap-switch styling -->
+    <link href="../static/css/bootstrap-switch.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="../static/css/dashboard.css" rel="stylesheet">
@@ -110,6 +112,10 @@
             <button class="btn btn-default btn-blue" type="button" ng-click="addRow()">
                 <span class="fa fa-plus"></span> <b>Add Row</b>
             </button>
+            <div id="hiddenDiv" style="display:none">
+                <canvas id="hiddenCanvas"></canvas>
+                <a id="hiddenLink" ></a>
+            </div>
 
             <!-- Table Container -->
             <div class="container-fluid" ng-repeat="plot in plots | orderBy:'num'" id="plot{a plot.num a}">
@@ -128,7 +134,7 @@
                                     <a tabindex="-1">{a key a}</a>
                                     <ul class="dropdown-menu">
                                         <li class="dropdown-header">Experiments</li>
-                                        <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(plot.num, key+'/'+exp)">{a exp a}</a></li>
+                                        <li><a tabindex="-1" ng-repeat="exp in value" ng-click="addDataset(plot.ix, key+'/'+exp)">{a exp a}</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -138,17 +144,36 @@
                         <label class="btn-blue input-group-addon"><b>Title:</b></label>
                         <input class="form-control" type="text" ng-model="plot.name">
                     </div>
-                    <div class="col-md-2 input-group pull-right">
+                    <div class="col-md-1 input-group pull-right">
                         <button class="btn btn-default btn-blue pull-right" type="button"
-                                ng-click="reloadData(plot.num)">
+                            ng-click="savePlot(plot.ix)">
+                            <span class="fa fa-download"></span> <b>Save Graph</b>
+                        </button>
+                    </div>
+                    <div class="col-md-1 input-group pull-right">
+                        <button class="btn btn-default btn-blue pull-right" type="button"
+                                ng-click="reloadData(plot.ix)">
                             <span class="fa fa-refresh"></span> <b>Reload Data</b>
                         </button>
                     </div>
+                    <!-- GOTTA WORK ON THIS -->
+                    <div class="col-md-1 input-group pull-right" style="padding-right: 8px;">
+                         <button class="btn btn-default btn-blue pull-right dropdown-toggle" type="button" data-toggle="dropdown"
+                                ng-disabled="validateCompare(plot.ix)">
+                            <span class="fa fa-line-chart"></span> <b>Compare Data</b>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="opt in plot.common_data | orderBy:'value' track by opt.key">
+                                <a tabindex="-1" ng-click="">{a opt.value a}</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
+                <!-- Beginning of table -->
                 <form>
                   <div class="table-responsive">
-                    <table class="table table-striped" id="myTable">
+                    <table class="table table-striped">
                       <thead>
                         <tr>
                             <td>
@@ -157,16 +182,16 @@
                             <td>
                                 <div class="input-group">
                                     <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
-                                                                       value="scatter" ng-click="changePlots(plot.num)">
+                                                                       value="scatter" ng-click="changePlots(plot.ix)">
                                         Scatterplot</label>
                                     <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
-                                                                       value="hist" ng-click="changePlots(plot.num)">
+                                                                       value="hist" ng-click="changePlots(plot.ix)">
                                         Histogram</label>
                                     <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
-                                                                       value="line" ng-click="changePlots(plot.num)">
+                                                                       value="line" ng-click="changePlots(plot.ix)">
                                         Line</label>
                                     <label class="radio-inline"><input type="radio" ng-model="plot.plot_type"
-                                                                       value="matrix" ng-click="changePlots(plot.num)">
+                                                                       value="matrix" ng-click="changePlots(plot.ix)">
                                         Matrix</label>
                                 </div>
                             </td>
@@ -178,7 +203,7 @@
                             <td>
                                 <div class="input-group">
                                     <label class="checkbox-inline"><input type="checkbox" ng-model="plot.options.grid"
-                                                                          ng-click="updatePlots(plot.num)">
+                                                                          ng-click="updatePlots(plot.ix)">
                                         Grid</label>
                                 </div>
                             </td>
@@ -186,30 +211,30 @@
                         <tr>
                             <td>
                                 <b>X-Axis:</b>
-                                <select class="form-control" ng-model="plot.axes.selected.x" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.x" ng-change="updatePlots(plot.ix)"
                                         ng-options="x_opt.value for x_opt in plot.common_data | orderBy:'value' track by x_opt.key">
                                     <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
                                 <b>Y-Axis</b>
-                                <select class="form-control" ng-model="plot.axes.selected.y" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.y" ng-change="updatePlots(plot.ix)"
                                         ng-options="y_opt.value for y_opt in plot.common_data | orderBy:'value' track by y_opt.key">
                                     <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
                                 <b>Top-Axis:</b>
-                                <select class="form-control" ng-model="plot.axes.selected.top" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.top" ng-change="updatePlots(plot.ix)"
                                         ng-options="top_opt.value for top_opt in plot.common_data | orderBy:'value' track by top_opt.key">
-                                    <option ng-click="removeAxis(plot.num, 'top')" value="" selected>None</option>
+                                    <option ng-click="removeAxis(plot.ix, 'top')" value="" selected>None</option>
                                 </select>
                             </td>
                             <td>
                                 <b>Right-Axis:</b>
-                                <select class="form-control" ng-model="plot.axes.selected.right" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="plot.axes.selected.right" ng-change="updatePlots(plot.ix)"
                                         ng-options="right_opt.value for right_opt in plot.common_data | orderBy:'value' track by right_opt.key">
-                                    <option ng-click="removeAxis(plot.num, 'right')" value="" selected>None</option>
+                                    <option ng-click="removeAxis(plot.ix, 'right')" value="" selected>None</option>
                                 </select>
                             </td>
                         </tr>
@@ -222,34 +247,37 @@
                             <th>Remove</th>
                         </tr>
                       </thead>
+                        <!-- Beginning of dataset repetition -->
                       <tbody id="myTable-body">
                         <tr ng-repeat="entry in plot.datasets_values" class="form-group">
                             <td>
                                 {a entry.dataset a}
                             </td>
                             <td>
-                                <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="entry.axes.x.scale" ng-change="updatePlots(plot.ix)"
                                         ng-options="axis_opt.key as axis_opt.value for axis_opt in plot.valid_x_axes | orderBy:'value'"
                                         ng-init="entry.axes.x.scale = 'x'">
                                     <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots(plot.num)"
+                                <select class="form-control" ng-model="entry.axes.y.scale" ng-change="updatePlots(plot.ix)"
                                         ng-options="axis_opt.key as axis_opt.value for axis_opt in plot.valid_y_axes | orderBy:'value'"
                                         ng-init="entry.axes.y.scale = 'y'">
                                     <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
-                                <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(plot.num, entry)">
+                                <input type="color" class="form-control" ng-model="entry.color" ng-change="updatePlot(plot.ix, entry)">
                             </td>
                             <td>
-                                Compare
+                                <input type="checkbox" ng-model="entry.compare"
+                                       switch-on-text="YES" switch-off-text="NO" switch-on-color="success"
+                                       switch-change="checkCompare(plot.ix, entry)" bs-switch>
                             </td>
                             <td>
                                 <input type="button" class="btn btn-primary btn-blue" value="Remove"
-                                       ng-click="removeDataset(plot.num, $event)" id="{a entry.id a}"/>
+                                       ng-click="removeDataset(plot.ix, $event)" id="{a entry.id a}"/>
                             </td>
                         </tr>
                       </tbody>
@@ -267,7 +295,15 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <!-- Tools for saving SVG as image -->
+    <script type="text/javascript" src="http://canvg.github.io/canvg/rgbcolor.js"></script>
+    <script type="text/javascript" src="http://canvg.github.io/canvg/StackBlur.js"></script>
+    <script type="text/javascript" src="http://canvg.github.io/canvg/canvg.js"></script>
+    <script type="text/javascript" src="../static/js/jackhammer.js"></script>
+    <!-- -->
     <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/bootstrap-switch.min.js"></script>
+    <script src="../static/js/angular-bootstrap-switch.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="../static/js/utils.js"></script>
     <script src="../static/js/scatter.js"></script>

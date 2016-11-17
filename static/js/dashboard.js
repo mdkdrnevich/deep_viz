@@ -2,7 +2,7 @@
  * Created by Matt on 7/6/2016.
  */
 
-var module = angular.module("main", []);
+var module = angular.module("main", ['frapontillo.bootstrap-switch']);
 
 module.config(['$interpolateProvider', function($interpolateProvider) {
   $interpolateProvider.startSymbol('{a');
@@ -64,6 +64,7 @@ function addPlot(scope) {
     scope.plots[ix].common_data = '';
     var num = ix == 0 ? 0 : scope.plots[ix-1].num + 1;
     scope.plots[ix].num = num;
+    scope.plots[ix].ix = ix;
     scope.plots[ix].name = 'Plot '+(num+1);
     scope.plots[ix].options = {grid: false};
     return scope;
@@ -106,6 +107,7 @@ module.controller("mainCtrl", function($scope, $http){
         var format_name = name.split('/')[1];
         myScope.datasets_values.push({id: ''+plot+"-dataset-"+new_num,
                                      dataset: name,
+                                     compare: false,
                                      axes: {
                                          x:{ key: myScope.axes[myScope.plot_type].x.key,
                                              value: myScope.axes[myScope.plot_type].x.value,
@@ -269,6 +271,18 @@ module.controller("mainCtrl", function($scope, $http){
         });
     };
 
+    $scope.savePlot = function(plot) {
+        var myScope = $scope.plots[plot];
+        var source = crowbar.getSource(document.getElementById("plot-"+myScope.num)).source;
+        var blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        var url = window.URL.createObjectURL(blob);
+        canvg('hiddenCanvas', url);
+        var link = document.getElementById("hiddenLink");
+        link.href = document.getElementById("hiddenCanvas").toDataURL("image/png");
+        link.download = myScope.name+".png";
+        link.click();
+    };
+
     $scope.getKeys = function(obj) {
         return Object.keys(obj);
     };
@@ -331,6 +345,25 @@ module.controller("mainCtrl", function($scope, $http){
             return [];//[{key: '', value: ''}];
         } else {
             return [];
+        }
+    };
+
+    $scope.validateCompare = function(plot) {
+        var myScope = $scope.plots[plot];
+
+        return !(myScope.datasets_values.filter(function(e) {
+            if (e.compare) return true;
+            }).length == 2);
+    };
+    
+    $scope.checkCompare = function(plot, dataset) {
+        var myScope = $scope.plots[plot];
+
+        if (myScope.datasets_values.filter(function(e) {
+            if (e.compare) return true;
+            }).length > 2) {
+                dataset.compare = false;
+                alert("You may only select two datasets to compare.");
         }
     };
 })

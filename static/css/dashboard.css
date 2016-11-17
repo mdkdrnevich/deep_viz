@@ -17,6 +17,18 @@ body {
   border-bottom: 1px solid #4f4f4f;
 }
 
+.light-header {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.table-row {
+    padding-top: 8px;
+    padding-bottom: 8px;
+/*    border-top: 1px solid #ccc; */
+    border-bottom: 1px solid #ccc;
+}
+
 /*
  * Sidebar
  */
@@ -143,4 +155,8 @@ Multilevel Dropdown Styling
     -webkit-border-radius:6px 0 6px 6px;
     -moz-border-radius:6px 0 6px 6px;
     border-radius:6px 0 6px 6px;
+}
+
+.dropdown-menu>li {
+    cursor: pointer;
 }
