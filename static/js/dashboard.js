@@ -226,6 +226,7 @@ module.controller("mainCtrl", function($scope, $http){
         var myScope = $scope.plots[plot];
         var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
+        var old_plot = myScope.datasets_values[0].plot_type;
 
         myScope.datasets_values.forEach(function(data) {
             data.plot_type = myScope.plot_type;
@@ -234,6 +235,10 @@ module.controller("mainCtrl", function($scope, $http){
         try {
             var scales = lib.get_scales.call(svg, myScope.datasets_values);
         } catch(err) {
+            myScope.datasets_values.forEach(function(data) {
+                data.plot_type = old_plot;
+            });
+            myScope.plot_type = old_plot;
             console.log(err);
             alert(err);
             return null;

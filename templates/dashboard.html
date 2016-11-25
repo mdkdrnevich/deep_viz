@@ -219,13 +219,13 @@
                                 <input class="form-control" type="text" ng-model="plot.axes[plot.plot_type].y"
                                        ng-change="updatePlots(plot.ix)"/>
                             </td>
-                            <!-- THESE NEED TO BE REMOVED -->
+                            <!--
                             <td>
                                 <b>Top-Axis:</b>
                                 <select class="form-control" ng-model="plot.axes.selected.top" ng-change="updatePlots(plot.ix)"
                                         ng-options="top_opt.value for top_opt in plot.common_data | orderBy:'value' track by top_opt.key">
                                     <option ng-click="removeAxis(plot.ix, 'top')" value="" selected>None</option>
-                                    <!-- <option value="" selected disabled>Select one</option> -->
+                                    <!-- // <option value="" selected disabled>Select one</option>
                                 </select>
                             </td>
                             <td>
@@ -234,7 +234,7 @@
                                         ng-options="right_opt.value for right_opt in plot.common_data | orderBy:'value' track by right_opt.key">
                                     <option ng-click="removeAxis(plot.ix, 'right')" value="" selected>None</option>
                                 </select>
-                            </td>
+                            </td> -->
                         </tr>
                         <tr>
                             <th>Dataset</th>
