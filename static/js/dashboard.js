@@ -18,6 +18,8 @@ var readableNames = {
     test_loss: "Test Loss",
     train_accuracy: "Train Accuracy",
     train_loss: "Train Loss",
+    total_accuracy: "Total Accuracy",
+    total_loss: "Total Loss",
     num: "Number of Epochs",
     x: "X-Axis",
     y: "Y-Axis",
@@ -132,7 +134,8 @@ module.controller("mainCtrl", function($scope, $http){
 
             var lib = libs[myScope.plot_type];
             try {
-                var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
+                var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type],
+                    {first: true});
             } catch(err) {
                 console.log(err);
                 alert(err);
@@ -273,7 +276,7 @@ module.controller("mainCtrl", function($scope, $http){
 
     $scope.savePlot = function(plot) {
         var myScope = $scope.plots[plot];
-        var source = crowbar.getSource(document.getElementById("plot-"+myScope.num)).source;
+        var source = jackhammer.getSource(document.getElementById("plot-"+myScope.num)).source;
         var blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
         var url = window.URL.createObjectURL(blob);
         canvg('hiddenCanvas', url);
@@ -340,6 +343,14 @@ module.controller("mainCtrl", function($scope, $http){
                     }) : null;
                 });
             });
+            if (options.has("test_accuracy") && options.has("train_accuracy")) {
+                ["total_accuracy", "total_loss"].forEach(function(y) {
+                    rval.push({
+                        key: y,
+                        value: readableNames[y]
+                    });
+                });
+            }
             return rval;
         } else if (myScope.plot_type == "hist") {
             return [];//[{key: '', value: ''}];

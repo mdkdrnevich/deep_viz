@@ -6,10 +6,11 @@
 
 var hist = {};
 
-hist.get_scales = function(dataset, axes) {
+hist.get_scales = function(dataset, axes, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var margins = settings.margins;
+    options = options ? options : {};
 
     var nbins = d3.max(dataset, function(d) {
         try {
@@ -28,7 +29,6 @@ hist.get_scales = function(dataset, axes) {
             return Math.max(d3.max(d.output.background), d3.max(d.output.signal));
         });
     });
-
 
     var ticks = [];
     var i;
@@ -251,11 +251,14 @@ hist.add_data = function(scales, data, options) {
         .style("fill", "green")
         .style("opacity", 0.5);
 
+    var timeScale = d3.scale.linear().domain([0, results.length]).range([0, 20000]); // How long for the hist animation
+    var delta = timeScale(2)-timeScale(1);
+
     for (var i=0; i < results.length; i++) {
         bkgBars.data(results[i].output.background)
             .transition()
-            .duration(1500)
-            .delay(i*1500)
+            .duration(delta)
+            .delay(timeScale(i))
             .attr("x", function(d, i) {
                 return xScale(i/data.nbins) + xScale.rangeBand()/2;
             })
@@ -268,8 +271,8 @@ hist.add_data = function(scales, data, options) {
             });
         sigBars.data(results[i].output.signal)
             .transition()
-            .duration(1500)
-            .delay(i*1500)
+            .duration(delta)
+            .delay(timeScale(i))
             .attr("x", function(d, i) {
                 return xScale(i/data.nbins) + xScale.rangeBand()/2;
             })
@@ -281,6 +284,37 @@ hist.add_data = function(scales, data, options) {
                 return h - margins.bottom - yScale(d);
             })
     }
+
+    bkgBars.data(results[data.experiment.max_epoch - 1].output.background)
+        .transition()
+        .duration(1500)
+        .delay(20000+delta)
+        .attr("x", function(d, i) {
+            return xScale(i/data.nbins) + xScale.rangeBand()/2;
+        })
+        .attr("y", function(d) {
+            return yScale(d);
+        })
+        .attr("width", (w - margins.left - margins.right)/data.nbins)
+        .attr("height", function(d) {
+            return h - margins.bottom - yScale(d);
+        });
+
+    sigBars.data(results[data.experiment.max_epoch - 1].output.signal)
+        .transition()
+        .duration(1500)
+        .delay(20000+delta)
+        .attr("x", function(d, i) {
+            return xScale(i/data.nbins) + xScale.rangeBand()/2;
+        })
+        .attr("y", function(d) {
+            return yScale(d);
+        })
+        .attr("width", (w - margins.left - margins.right)/data.nbins)
+        .attr("height", function(d) {
+            return h - margins.bottom - yScale(d);
+        });
+
     return this;
 };
 
@@ -293,7 +327,7 @@ hist.update_data = function(scales, data, options) {
     var results = data.experiment.results;
 
     this.selectAll(".data.plot"+data.id+".bkg rect")
-        .data(results[results.length-1].output.background)
+        .data(results[data.experiment.max_epoch - 1].output.background)
         .transition()
         .duration(3000)
         .attr("x", function(d, i) {
@@ -308,7 +342,7 @@ hist.update_data = function(scales, data, options) {
         });
 
     this.selectAll(".data.plot"+data.id+".sig rect")
-        .data(results[results.length-1].output.signal)
+        .data(results[data.experiment.max_epoch - 1].output.signal)
         .transition()
         .duration(3000)
         .attr("x", function(d, i) {

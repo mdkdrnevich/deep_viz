@@ -68,6 +68,13 @@ def experiment_to_dict(experiment):
     for ix, r in enumerate(d["results"]):
         r["current_time"] = sum([e["num_seconds"] for e in d["results"][:ix+1]])
 
+    m = 0
+    d["max_epoch"] = 0
+    for e in d["results"]:
+        if e["test_accuracy"] > m:
+            m = e["test_accuracy"]
+            d["max_epoch"] = e["num"]
+
     return d
 
 if __name__ == "__main__":

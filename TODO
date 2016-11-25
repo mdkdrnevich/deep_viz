@@ -15,5 +15,20 @@ Scale scatterplot circle radius by S/sqrt(B) value
 Improve table design layout (label plots better)
 Make whole svg removable so that table re-expands
 heatmap better legend placement (dependent on size/shape)
+Make histogram scales vary with the histogram
+implement axis of general accuracy, so you can plot test and train against same axis
+
+
+Iterate over the epochs by loading the model on the server and fidning maximum epoch by accuracy,
+then calculate stats based on that
+
+Make x-label and y-label text inputs, and call a transition every time it is changed.
+Make the scales a function of every dataset's x and y axis choices. have a choice for every dataset.
 
 Strong color: #913aff
+
+// Need to properly scale and color this
+        ///*var img = document.getElementById("hiddenCanvas").toDataURL("image/jpeg");
+        //var pdf = jsPDF('landscape');
+        //pdf.addImage(img, 'JPEG', 0, 0);
+        //pdf.save("practice.pdf");*/
