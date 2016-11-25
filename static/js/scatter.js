@@ -15,10 +15,10 @@ scatter.get_scales = function(datasets, axes) {
 
     var x_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            if (r[axes.x.key]) {
-                return r[axes.x.key];
+            if (r[data.axes[data.plot_type].x.key]) {
+                return r[data.axes[data.plot_type].x.key];
             } else {
-                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.x.key]+"'";
+                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[data.axes[data.plot_type].x.key]+"'";
             }
         });
     });
@@ -27,10 +27,10 @@ scatter.get_scales = function(datasets, axes) {
 
     var y_extents = datasets.map( function (data) {
         return d3.extent(data.experiment.results, function(r) {
-            if (r[axes.y.key]) {
-                return r[axes.y.key];
+            if (r[data.axes[data.plot_type].y.key]) {
+                return r[data.axes[data.plot_type].y.key];
             } else {
-                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[axes.y.key]+"'";
+                throw "Dataset '"+data.dataset+"' does not have attribute '"+readableNames[data.axes[data.plot_type].y.key]+"'";
             }
         });
     });
@@ -58,7 +58,7 @@ scatter.get_scales = function(datasets, axes) {
     */
 
     var scales = {x: xScale, y: yScale};//, radius: rScale};
-
+    /*
     if (axes.top.key && axes.top.value) {
         var top_extents = datasets.map( function (data) {
             return d3.extent(data.experiment.results, function(r) {
@@ -92,7 +92,7 @@ scatter.get_scales = function(datasets, axes) {
         scales.right = d3.scale.linear()
                                     .domain([right_min, right_max])
                                     .range([h - margins.bottom, margins.top]);
-    }
+    } */
     return scales;
 };
 
@@ -148,7 +148,7 @@ scatter.add_axes = function(scales, axes, options) {
         .attr("y", 35)
         .attr("text-anchor", "middle")
         .style("opacity", 1)
-        .text(axes.x.value);
+        .text(axes.x);
     this.select(".y.axis").append("text")
         .style("opacity", 0)
         .transition()
@@ -159,14 +159,15 @@ scatter.add_axes = function(scales, axes, options) {
         .attr("transform", "rotate(-90, -45," + (10 + (h - margins.left - margins.right) / 2) + ")")
         .attr("text-anchor", "middle")
         .style("opacity", 1)
-        .text(axes.y.value);
+        .text(axes.y);
 
+    /*
     if (axes.top.key && axes.top.value) {
         scatter.add_top_axis.call(this, scales.top, axes.top.value);
     }
     if (axes.right.key && axes.right.value) {
         scatter.add_right_axis.call(this, scales.right, axes.right.value);
-    }
+    } */
     return this;
 };
 
@@ -261,7 +262,7 @@ scatter.update_axes = function(scales, axes, options) {
         .style("opacity", 0)
     }
 
-    if (xLabel.text() != axes.x.value) {
+    if (xLabel.text() != axes.x) {
         this.select(".x.label")
             .transition()
             .duration(1000)
@@ -274,7 +275,7 @@ scatter.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .text(axes.x.value)
+            .text(axes.x)
             .transition()
             .duration(1500)
             .delay(1500)
@@ -286,7 +287,7 @@ scatter.update_axes = function(scales, axes, options) {
             .attr("x", (w - margins.left - margins.right) / 2)
             .attr("y", 35)
     }
-    if (yLabel.text() != axes.y.value) {
+    if (yLabel.text() != axes.y) {
         this.select(".y.label")
             .transition()
             .duration(1000)
@@ -300,7 +301,7 @@ scatter.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .text(axes.y.value)
+            .text(axes.y)
             .transition()
             .duration(1500)
             .delay(1500)
@@ -314,6 +315,7 @@ scatter.update_axes = function(scales, axes, options) {
             .attr("transform", "rotate(-90, -45," + (10 + (h - margins.top - margins.bottom) / 2) + ")")
     }
 
+    /*
     var topAxis, rightAxis;
 
     if (topLabel.empty() && axes.top.value) {
@@ -386,7 +388,7 @@ scatter.update_axes = function(scales, axes, options) {
             .attr("x", 45)
             .attr("y", margins.top + 35)
             .attr("transform", "rotate(90, 40," + (margins.top + 35) + ")")
-    }
+    } */
     return this;
 };
 
@@ -397,9 +399,9 @@ This section creates and updates scatterplot points
 scatter.add_data = function(scales, data, options) {
     var h = this.attr("height");
     var margins = settings.margins;
-    var xScale = scales[data.axes.x.scale];
-    var yScale = scales[data.axes.y.scale];
-    var rScale = scales.radius;
+    var xScale = scales.x;
+    var yScale = scales.y;
+    //var rScale = scales.radius;
 
     // Generate points on scatterplot
     this.append("g")
@@ -418,10 +420,10 @@ scatter.add_data = function(scales, data, options) {
         })
         .duration(3000)
         .attr("cx", function (d) {
-            return xScale(d[data.axes.x.key])
+            return xScale(d[data.axes[data.plot_type].x.key])
         })
         .attr("cy", function (d) {
-            return yScale(d[data.axes.y.key])
+            return yScale(d[data.axes[data.plot_type].y.key])
         })
         .attr("r", function (d) {
             return 3;
@@ -431,15 +433,16 @@ scatter.add_data = function(scales, data, options) {
     this.selectAll(".data.plot"+data.id+" circle")
         .data(data.experiment.results)
         .append("svg:title")
-        .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
+        .text(function(d) {return '('+numFormat.format(d[data.axes[data.plot_type].x.key])+', '
+            +numFormat.format(d[data.axes[data.plot_type].y.key])+')';});
     return this;
 };
 
 scatter.update_data = function(scales, data, options) {
     var h = this.attr("height");
     var padding = settings.padding;
-    var xScale = scales[data.axes.x.scale];
-    var yScale = scales[data.axes.y.scale];
+    var xScale = scales.x;
+    var yScale = scales.y;
     var rScale = scales.radius;
 
     var circles = this.selectAll(".data.plot"+data.id+" circle").data(data.experiment.results);
@@ -451,10 +454,10 @@ scatter.update_data = function(scales, data, options) {
     circles.transition()
         .duration(3000)
         .attr("cx", function (d) {
-            return xScale(d[data.axes.x.key])
+            return xScale(d[data.axes[data.plot_type].x.key])
         })
         .attr("cy", function (d) {
-            return yScale(d[data.axes.y.key])
+            return yScale(d[data.axes[data.plot_type].y.key])
         })
         .attr("r", function (d) {
             return 3;
@@ -472,10 +475,10 @@ scatter.update_data = function(scales, data, options) {
         })
         .duration(3000)
         .attr("cx", function (d) {
-            return xScale(d[data.axes.x.key])
+            return xScale(d[data.axes[data.plot_type].x.key])
         })
         .attr("cy", function (d) {
-            return yScale(d[data.axes.y.key])
+            return yScale(d[data.axes[data.plot_type].y.key])
         })
         .attr("r", function (d) {
             return 3;
@@ -485,6 +488,7 @@ scatter.update_data = function(scales, data, options) {
 
     this.selectAll(".data.plot"+data.id+" circle").select("title")
         .data(data.experiment.results)
-        .text(function(d) {return '('+numFormat.format(d[data.axes.x.key])+', '+numFormat.format(d[data.axes.y.key])+')';});
+        .text(function(d) {return '('+numFormat.format(d[data.axes[data.plot_type].x.key])+', '
+            +numFormat.format(d[data.axes[data.plot_type].y.key])+')';});
     return this;
 };

@@ -38,32 +38,34 @@ function addPlot(scope) {
     var ix = scope.plots.push({}) - 1;
     scope.plots[ix].datasets_keys = [];
     scope.plots[ix].datasets_values = [];
-    scope.plots[ix].axes = {};
-    scope.plots[ix].axes.selected = {x: {key: 'current_time', value: readableNames['current_time']},
-                                     y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
-                                     top: {key: '', value: ''},
-                                     right: {key: '', value: ''}};
-    scope.plots[ix].axes.scatter = {x: {key: 'current_time', value: readableNames['current_time']},
-                                     y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
-                                     top: {key: '', value: ''},
-                                     right: {key: '', value: ''}};
-    scope.plots[ix].axes.hist = {x: {key: 'Signal Prediction', value: 'Signal Prediction (%)'},
-                                  y: {key: 'Number of Events', value: 'Number of Events'},
-                                  top: {key: '', value: ''},
-                                  right: {key: '', value: ''}};
-    scope.plots[ix].axes.line = {x: {key: 'current_time', value: readableNames['current_time']},
-                                  y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
-                                  top: {key: '', value: ''},
-                                  right: {key: '', value: ''}};
-    scope.plots[ix].axes.matrix = {x: {key: 'Predicted', value: 'Predicted'},
-                                   y: {key: 'Real', value: 'Real'},
-                                   top: {key: '', value: ''},
-                                   right: {key: '', value: ''}};
-    scope.plots[ix].valid_x_axes = [{key: 'x', value: 'X-Axis'}];
-    scope.plots[ix].valid_y_axes = [{key: 'y', value: 'Y-Axis'}];
+    scope.plots[ix].axes = {
+        scatter: {
+            x: readableNames['current_time'],
+            y: readableNames['test_accuracy'],
+            top: '',
+            right: ''
+        },
+        hist: {
+            x: 'Signal Prediction (%)',
+            y: 'Number of Events',
+            top: '',
+            right: ''
+        },
+        line: {
+            x: readableNames['current_time'],
+            y: readableNames['test_accuracy'],
+            top: '',
+            right: ''
+        },
+        matrix: {
+            x: 'Predicted',
+            y: 'Real',
+            top: '',
+            right: ''
+        }
+    };
     scope.plots[ix].plot_type = "scatter";
     scope.plots[ix]._first_plot = true;
-    scope.plots[ix].common_data = '';
     var num = ix == 0 ? 0 : scope.plots[ix-1].num + 1;
     scope.plots[ix].num = num;
     scope.plots[ix].ix = ix;
@@ -111,13 +113,24 @@ module.controller("mainCtrl", function($scope, $http){
                                      dataset: name,
                                      compare: false,
                                      axes: {
-                                         x:{ key: myScope.axes[myScope.plot_type].x.key,
-                                             value: myScope.axes[myScope.plot_type].x.value,
-                                             scale: 'x'},
-                                         y:{ key: myScope.axes[myScope.plot_type].y.key,
-                                             value: myScope.axes[myScope.plot_type].y.value,
-                                             scale: 'y'}
+                                         scatter: {x: {key: 'current_time', value: readableNames['current_time']},
+                                                   y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                                                   top: {key: '', value: ''},
+                                                   right: {key: '', value: ''}},
+                                         hist: {x: {key: 'Signal Prediction', value: 'Signal Prediction (%)'},
+                                                y: {key: 'Number of Events', value: 'Number of Events'},
+                                                top: {key: '', value: ''},
+                                                right: {key: '', value: ''}},
+                                         line: {x: {key: 'current_time', value: readableNames['current_time']},
+                                                y: {key: 'test_accuracy', value: readableNames['test_accuracy']},
+                                                top: {key: '', value: ''},
+                                                right: {key: '', value: ''}},
+                                         matrix: {x: {key: 'Predicted', value: 'Predicted'},
+                                                  y: {key: 'Real', value: 'Real'},
+                                                  top: {key: '', value: ''},
+                                                  right: {key: '', value: ''}}
                                      },
+                                     plot_type: myScope.plot_type,
                                      color: "#2929d6",
                                      experiment: {results: [{}]}});
         myScope.datasets_keys.push(new_num);
@@ -128,7 +141,7 @@ module.controller("mainCtrl", function($scope, $http){
             var this_ds = myScope.datasets_values[myScope.datasets_values.length-1];
             this_ds.experiment = response.data;
 
-            myScope.common_data = $scope.getCommonData(plot);
+            this_ds.data_options = $scope.getDataOptions(plot, this_ds);
 
             var svg = d3.select("svg#plot-"+plot);
 
@@ -193,23 +206,6 @@ module.controller("mainCtrl", function($scope, $http){
         var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
 
-        var bool_top = Boolean(myScope.axes.selected.top);
-        var bool_right = Boolean(myScope.axes.selected.right);
-        if (!bool_top)
-            myScope.axes[myScope.plot_type].top = {key: '', value: ''};
-        if (!bool_right)
-            myScope.axes[myScope.plot_type].right = {key: '', value: ''};
-        myScope.datasets_values.forEach(function (dataset) {
-            if (!bool_top) dataset.axes.x.scale = 'x';
-            if (!bool_right) dataset.axes.y.scale = 'y';
-            var x_scale = dataset.axes.x.scale;
-            var y_scale = dataset.axes.y.scale;
-            myScope.axes[myScope.plot_type] = myScope.axes.selected;
-            dataset.axes.x.key = myScope.axes[myScope.plot_type][x_scale].key;
-            dataset.axes.x.value = myScope.axes[myScope.plot_type][x_scale].value;
-            dataset.axes.y.key = myScope.axes[myScope.plot_type][y_scale].key;
-            dataset.axes.y.value = myScope.axes[myScope.plot_type][y_scale].value;
-        });
         try {
             var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
         } catch(err) {
@@ -224,8 +220,6 @@ module.controller("mainCtrl", function($scope, $http){
                 $scope.updatePlot(plot, dataset);
             });
         }
-        myScope.valid_x_axes = $scope.getValidAxes(plot, 'x');
-        myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
     };
 
     $scope.changePlots = function(plot) {
@@ -233,18 +227,21 @@ module.controller("mainCtrl", function($scope, $http){
         var lib = libs[myScope.plot_type];
         var svg = d3.select("svg#plot-"+plot);
 
+        myScope.datasets_values.forEach(function(data) {
+            data.plot_type = myScope.plot_type;
+        });
+
         try {
-            var scales = lib.get_scales.call(svg, myScope.datasets_values, myScope.axes[myScope.plot_type]);
+            var scales = lib.get_scales.call(svg, myScope.datasets_values);
         } catch(err) {
             console.log(err);
             alert(err);
             return null;
         }
 
-        myScope.valid_x_axes = $scope.getValidAxes(plot, 'x');
-        myScope.valid_y_axes = $scope.getValidAxes(plot, 'y');
-        myScope.axes.selected = myScope.axes[myScope.plot_type];
-        myScope.common_data = $scope.getCommonData(plot);
+        myScope.datasets_values.forEach(function (data) {
+            data.data_options = $scope.getDataOptions(plot, data);
+        });
 
         $scope.updatePlots(plot, true);
         myScope.datasets_values.forEach(function (data) {
@@ -290,30 +287,6 @@ module.controller("mainCtrl", function($scope, $http){
         return Object.keys(obj);
     };
 
-    // Returns {key: "<axis key>", value: "<axis name>"} that have been generated
-    $scope.getValidAxes = function(plot, which) {
-        var myScope = $scope.plots[plot];
-        var rval = [];
-        Object.keys(myScope.axes[myScope.plot_type]).forEach( function(a) {
-            myScope.axes[myScope.plot_type][a].key && myScope.axes[myScope.plot_type][a].value ? rval.push({key: a, value: readableNames[a]}) : null;
-        });
-        switch (which) {
-            case 'x':
-                rval = rval.filter(function(e) {
-                    return (e.key.startsWith('x') || e.key.startsWith('top'));
-                });
-                break;
-            case 'y':
-                rval = rval.filter(function(e) {
-                    return (e.key.startsWith('y') || e.key.startsWith('right'));
-                });
-                break;
-            default:
-                break;
-        }
-        return rval;
-    };
-
     // Removes an optional axis
     $scope.removeAxis = function(plot, which) {
         var myScope = $scope.plots[plot];
@@ -329,28 +302,18 @@ module.controller("mainCtrl", function($scope, $http){
         }
     };
 
-    // Returns a list of data that is common to all of the datasets
-    $scope.getCommonData = function(plot) {
+    // Need to do this and return for EACH dataset. Make sure it is for each type of graph
+    $scope.getDataOptions = function(plot, entry) {
         var myScope = $scope.plots[plot];
         var options = new Set();
         if ((myScope.plot_type == "scatter") || (myScope.plot_type == "line")){
             var rval = [];
-            myScope.datasets_values.forEach(function (entry) {
-                Object.keys(entry.experiment.results[0]).forEach(function (x) {
-                    readableNames[x] && !options.has(x) ? options.add(x) && rval.push({
-                        key: x,
-                        value: readableNames[x]
-                    }) : null;
-                });
+            Object.keys(entry.experiment.results[0]).forEach(function (x) {
+                readableNames[x] && !options.has(x) ? options.add(x) && rval.push({
+                    key: x,
+                    value: readableNames[x]
+                }) : null;
             });
-            if (options.has("test_accuracy") && options.has("train_accuracy")) {
-                ["total_accuracy", "total_loss"].forEach(function(y) {
-                    rval.push({
-                        key: y,
-                        value: readableNames[y]
-                    });
-                });
-            }
             return rval;
         } else if (myScope.plot_type == "hist") {
             return [];//[{key: '', value: ''}];
