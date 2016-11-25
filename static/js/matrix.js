@@ -126,7 +126,7 @@ matrix.add_axes = function(scales, axes, options) {
         .attr("y", margins.top -30 - axisShift)
         .attr("text-anchor", "middle")
         .style("opacity", 1)
-        .text(axes.x.value);
+        .text(axes.x);
     this.select(".y.axis")
         .append("text")
         .attr("class", "y label")
@@ -138,7 +138,7 @@ matrix.add_axes = function(scales, axes, options) {
         .attr("transform", "rotate(-90, -40," + (offset / 2) + ")")
         .attr("text-anchor", "middle")
         .style("opacity", 1)
-        .text(axes.y.value);
+        .text(axes.y);
 
     // Build a legend
     var length = (offset - margins.top - margins.bottom) / 10;
@@ -262,7 +262,7 @@ matrix.update_axes = function(scales, axes, options) {
         targets.transition().duration(1500).delay(1500).style("opacity", 1);
     }
 
-    if (xLabel.text() != axes.x.value) {
+    if (xLabel.text() != axes.x) {
         this.select(".x.label")
             .transition()
             .duration(1000)
@@ -275,7 +275,7 @@ matrix.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .text(axes.x.value)
+            .text(axes.x)
             .transition()
             .duration(1500)
             .delay(1500)
@@ -287,7 +287,7 @@ matrix.update_axes = function(scales, axes, options) {
             .attr("x", offset / 2)
             .attr("y", margins.top -30 - axisShift)
     }
-    if (yLabel.text() != axes.y.value) {
+    if (yLabel.text() != axes.y) {
         this.select(".y.label")
             .transition()
             .duration(1000)
@@ -301,7 +301,7 @@ matrix.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .text(axes.y.value)
+            .text(axes.y)
             .transition()
             .duration(1500)
             .delay(1500)
@@ -440,8 +440,8 @@ matrix.add_data = function(scales, data, options) {
         .attr("width", side)
         .attr("height", side)
         .style("fill", function(d) {
-            var total = d3.sum(results[0].matrix[Math.floor(d/ndim)]);
-            return colorScale(results[0].matrix[Math.floor(d/ndim)][d%ndim] / total);
+            var total = d3.sum(results[data.experiment.max_epoch-1].matrix[Math.floor(d/ndim)]);
+            return colorScale(results[data.experiment.max_epoch-1].matrix[Math.floor(d/ndim)][d%ndim] / total);
         });
 
     var text = this.append("g")
@@ -458,8 +458,8 @@ matrix.add_data = function(scales, data, options) {
             return sideScale(Math.floor(d/ndim)) + side/2;
         })
         .text(function(d) {
-            var total = d3.sum(results[0].matrix[Math.floor(d/ndim)]);
-            return (results[0].matrix[Math.floor(d/ndim)][d%ndim] / total).toFixed(2);
+            var total = d3.sum(results[data.experiment.max_epoch-1].matrix[Math.floor(d/ndim)]);
+            return (results[data.experiment.max_epoch-1].matrix[Math.floor(d/ndim)][d%ndim] / total).toFixed(2);
         })
         .attr("text-anchor", "middle")
         .style("font-size", "15px")
@@ -471,6 +471,7 @@ matrix.add_data = function(scales, data, options) {
         .style("opacity", 1);
 
     // Scale the transition speed so that the total length is always 10 secs
+    /*
     var speed = 10000/(results.length-1);
     var delayScale = d3.scale.linear()
         .domain([1, results.length-1])
@@ -491,7 +492,7 @@ matrix.add_data = function(scales, data, options) {
                 var total = d3.sum(results[i].matrix[Math.floor(d/ndim)]);
                 return (results[i].matrix[Math.floor(d/ndim)][d%ndim] / total).toFixed(2);
         });
-    }
+    }*/
     return this;
 };
 

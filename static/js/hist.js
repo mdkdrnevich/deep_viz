@@ -150,7 +150,7 @@ hist.update_axes = function(scales, axes, options) {
         .style("opacity", 0);
     }
 
-    if (xLabel.text() != axes.x.value) {
+    if (xLabel.text() != axes.x) {
         this.select(".x.label")
             .transition()
             .duration(1000)
@@ -163,7 +163,7 @@ hist.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .text(axes.x.value)
+            .text(axes.x)
             .transition()
             .duration(1500)
             .delay(1500)
@@ -175,7 +175,7 @@ hist.update_axes = function(scales, axes, options) {
             .attr("x", (w - margins.right - margins.left) / 2)
             .attr("y", 35)
     }
-    if (yLabel.text() != axes.y.value) {
+    if (yLabel.text() != axes.y) {
         this.select(".y.label")
             .transition()
             .duration(1000)
@@ -189,7 +189,7 @@ hist.update_axes = function(scales, axes, options) {
             .transition()
             .duration(1500)
             .delay(1500)
-            .text(axes.y.value)
+            .text(axes.y)
             .transition()
             .duration(1500)
             .delay(1500)
@@ -254,7 +254,10 @@ hist.add_data = function(scales, data, options) {
     var timeScale = d3.scale.linear().domain([0, results.length]).range([0, 20000]); // How long for the hist animation
     var delta = timeScale(2)-timeScale(1);
 
+    //options.speed = delta;
     for (var i=0; i < results.length; i++) {
+        //Need to vary the scales every iteration and vary the axes (could be crazy slow)
+        //hist.update_axes(scales, {x: this.select(".x.label"), y: this.select(".y.label")}, options);
         bkgBars.data(results[i].output.background)
             .transition()
             .duration(delta)
@@ -322,8 +325,8 @@ hist.update_data = function(scales, data, options) {
     var h = this.attr("height");
     var w = get_container_width(this);
     var margins = settings.margins;
-    var xScale = scales[data.axes.x.scale];
-    var yScale = scales[data.axes.y.scale];
+    var xScale = scales.x;
+    var yScale = scales.y;
     var results = data.experiment.results;
 
     this.selectAll(".data.plot"+data.id+".bkg rect")
